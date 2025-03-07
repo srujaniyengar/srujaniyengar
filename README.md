@@ -41,6 +41,11 @@
 </div>
 
 ###
+###
+
+<h2 align="left">find me on...(just click)</h2>
+
+###
 
 <div align="center">
   <a href="https://www.linkedin.com/in/srujan-iyengar/" target="_blank">
@@ -54,16 +59,10 @@
   </a>
 </div>
 
-###
+ 
 
-<div align="center">
-  <img src="https://github-readme-stats.vercel.app/api/top-langs?username=srujaniyengar&locale=en&hide_title=false&layout=compact&card_width=320&langs_count=5&theme=dracula&hide_border=false&order=2" height="150" alt="languages graph"  />
-</div>
+ 
 
-###
-
-<div align="center">
-  <img src="https://profile-counter.glitch.me/srujaniyengar/count.svg?"  />
-</div>
+ 
 
 ###
