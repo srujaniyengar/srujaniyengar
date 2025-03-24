@@ -6,7 +6,7 @@
 
 ###
 
-<p align="left">System software engineering ⚙️ and Tech explorer 🧑‍💻. Computer Science student 🎓 fluent in C, C++, Java, Kotlin, Python, and Rust. ⚡ Backend wizard by day, IoT tinkerer by night 🤖, and always on the lookout for the next cool tech adventure! 🚀 Open-source contributor 🌍. Passionate about ESP backend development 🔌, ESP robotics 🤖, and system software engineering ⚙️.<br><br>🚧 Currently working on RondoNat and ByeByeSeg.</p>
+<p align="left">System software engineering ⚙️ and Tech explorer 🧑‍💻. Computer Science student 🎓 fluent in C, C++, Java, Kotlin, Python, and Rust. ⚡ Backend wizard by day, IoT tinkerer by night 🤖, and always on the lookout for the next cool tech adventure! 🚀 Open-source contributor 🌍. Passionate about ESP backend development 🔌, ESP robotics 🤖, and system software engineering ⚙️.<br><br>🚧 Currently working on turbotftp and ByeByeSeg.</p>
 
 ###
 
