@@ -7,7 +7,7 @@
 ###
 
 <p align="left">
-  System software engineer ⚙️ and Tech explorer 🧑‍💻. Computer Science student 🎓 fluent in C, C++, Java, Kotlin, Python, and Rust. ⚡ Backend wizard by day, IoT tinkerer by night 🤖, and always on the lookout for the next cool tech adventure! 🚀 Open-source contributor 🌍. Passionate about ESP backend development 🔌, ESP robotics 🤖, and system software engineering ⚙️.<br><br>
+  System software engineer ⚙️ and Tech explorer 🧑‍💻. Computer Science student 🎓 fluent in C, C++,Rust, Java and Python. ⚡ Backend wizard by day, IoT tinkerer by night 🤖, and always on the lookout for the next cool tech adventure! 🚀 Open-source contributor 🌍. Passionate about ESP backend development 🔌, ESP robotics 🤖, and system software engineering ⚙️.<br><br>
   🚧 Currently working on turboTftp 
 </p>
 
