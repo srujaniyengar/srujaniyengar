@@ -34,7 +34,7 @@
 
 ### About Me
 - 🎓 CS Student into **System Software & Backend**  
-- 🌍 Loves **Open-Source**  
+- 🌍 I LOVE CATS :3 
 
 ---
 
