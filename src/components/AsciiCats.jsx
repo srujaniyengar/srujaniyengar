@@ -126,22 +126,35 @@ export function CatConstellation() {
 }
 
 export function CatParade() {
-  const [trackIndex, setTrackIndex] = useState(0);
-
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setTrackIndex((prev) => (prev + 1) % paradeTracks.length);
-    }, 4600);
-
-    return () => window.clearInterval(timer);
-  }, []);
+  // One continuous ribbon, rendered twice so the -50% marquee loops seamlessly
+  // instead of scrolling into empty space.
+  const ribbon = `${paradeTracks.join("     ")}     `;
 
   return (
     <div className="cat-parade" aria-hidden="true">
-      <span key={`parade-${trackIndex}`} className="parade-track">
-        {paradeTracks[trackIndex]}
-      </span>
+      <div className="parade-track">
+        <span>{ribbon}</span>
+        <span>{ribbon}</span>
+      </div>
     </div>
+  );
+}
+
+/**
+ * Self-aligning ASCII box. The border and right edge are computed from the
+ * longest line via padEnd, so the frame can never drift out of alignment the
+ * way hand-padded art does.
+ */
+export function AsciiBox({ lines, className = "" }) {
+  const width = Math.max(...lines.map((line) => line.length)) + 4;
+  const bar = "─".repeat(width);
+  const body = lines.map((line) => `│  ${line.padEnd(width - 2)}│`);
+  const rows = [`┌${bar}┐`, ...body, `└${bar}┘`];
+
+  return (
+    <pre className={`ascii-box ${className}`.trim()} aria-hidden="true">
+      {rows.join("\n")}
+    </pre>
   );
 }
 

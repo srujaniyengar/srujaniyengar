@@ -109,6 +109,25 @@ export const PROJECTS = {
 
 export const EXPERIENCE = [
   {
+    company: "Appfend",
+    role: "Security Engineering Intern · Remote",
+    period: "May 2026 – Jul 2026",
+    stack: ["Cilium", "eBPF", "k3s", "containerd", "systemd", "microVM"],
+    accent: "cyan",
+    metrics: [
+      { value: "100%", label: "cross-tenant isolation" },
+      { value: "30+", label: "isolated microVMs" },
+      { value: "4–5×", label: "oversubscription" },
+    ],
+    bullets: [
+      "Enforced 100% cross-tenant isolation (TCP/UDP/ICMP) on a multi-tenant microVM platform with identity-based Cilium eBPF ingress policies that default-deny at host-side veth and survive pod IP changes.",
+      "Protected k3s/containerd from OOM kills by configuring a 1 GiB kubelet hard-eviction floor, 2 GiB system-reserved budget, and systemd overrides (MemoryMin=256M, OOMScoreAdjust=-900).",
+      "Mapped node limits via a 3-axis oversubscription benchmark, sustaining 30+ isolated microVMs at 4–5× oversubscription on an 8-core/31 GiB host with PSI avg10 >40% fail-safe teardown.",
+      "Reduced deployment to one idempotent command by splitting a monolithic bootstrap into 20 lifecycle scripts with package-manager abstractions.",
+      "Prevented regressions across 5 CiliumNetworkPolicy manifests with a 4-layer harness: 14 offline checks, 20 cluster-gated checks, golden-hash drift detection, and a pre-commit hook.",
+    ],
+  },
+  {
     company: "TruckHai",
     role: "Backend Engineering Intern",
     period: "2024",

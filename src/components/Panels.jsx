@@ -1,6 +1,12 @@
 import { EXPERIENCE, MISSION, OFF_DUTY, PROJECTS } from "../data/content";
 import { ExpCard, MissionCard, ProjectCard, SectionHeader, Tag } from "./PortfolioBits";
-import { AnimatedAsciiCat, CatConstellation, CatParade, GuardianColony } from "./AsciiCats";
+import {
+  AnimatedAsciiCat,
+  AsciiBox,
+  CatConstellation,
+  CatParade,
+  GuardianColony,
+} from "./AsciiCats";
 
 export function HomePanel() {
   return (
@@ -8,12 +14,10 @@ export function HomePanel() {
       <article className="hero-card">
         <div className="scanline" aria-hidden="true" />
         <CatConstellation />
-        <pre className="hero-frame" aria-hidden="true">
-          {`┌─────────────────────────────────────────────────────┐
-│  SRUJAN IYENGAR  ·  SYSTEMS ENGINEER                │
-│  "The Stack Below The Stack"                        │
-└─────────────────────────────────────────────────────┘`}
-        </pre>
+        <AsciiBox
+          className="hero-frame"
+          lines={["SRUJAN IYENGAR  ·  SYSTEMS ENGINEER", '"The Stack Below The Stack"']}
+        />
 
         <h1>Srujan Iyengar</h1>
         <p className="hero-subtitle">

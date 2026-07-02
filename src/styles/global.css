@@ -23,6 +23,12 @@
   --panel-alt: #141a21;
   --stroke: #262626;
   --glow: rgba(184, 181, 255, 0.35);
+
+  /* UI text keeps the Space Mono character; ASCII art uses JetBrains Mono
+     first for tighter, box-drawing-correct cell metrics so frames and cats
+     never drift. */
+  --font-ui: "Space Mono", "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
+  --font-art: "JetBrains Mono", "Space Mono", ui-monospace, "Courier New", monospace;
 }
 
 html,
@@ -36,8 +42,26 @@ body {
     radial-gradient(circle at 20% 10%, var(--glow), transparent 35%),
     linear-gradient(160deg, var(--bg), var(--bg2) 40%, var(--bg3));
   color: var(--text);
-  font-family: "Space Mono", "JetBrains Mono", monospace;
+  font-family: var(--font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
   overflow: hidden;
+}
+
+/* All ASCII art shares strict monospace metrics, no ligatures, no letter
+   spacing — this is what keeps cats and frames columnar. */
+.ascii-box,
+.hero-frame,
+.guardian-colony,
+.offduty-cat,
+.section-cat-art,
+.help-cat,
+.parade-track {
+  font-family: var(--font-art);
+  font-variant-ligatures: none;
+  letter-spacing: 0;
+  tab-size: 2;
 }
 
 a {
@@ -432,11 +456,14 @@ a:focus-visible {
 }
 
 .hero-frame {
+  position: relative;
+  z-index: 1;
   color: var(--lav);
-  opacity: 0.74;
+  opacity: 0.82;
   font-size: 11px;
-  line-height: 1.5;
+  line-height: 1.3;
   margin-bottom: 18px;
+  overflow-x: auto;
 }
 
 .hero-card h1 {
@@ -448,6 +475,17 @@ a:focus-visible {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   animation: shimmer 4s linear infinite;
+}
+
+/* Fallback: if background-clip:text is unsupported, keep the text visible
+   (solid accent) instead of transparent. */
+@supports not ((background-clip: text) or (-webkit-background-clip: text)) {
+  .section-header h2,
+  .hero-card h1 {
+    background: none;
+    color: var(--lav);
+    -webkit-text-fill-color: currentColor;
+  }
 }
 
 .hero-subtitle {
@@ -524,8 +562,9 @@ a:focus-visible {
   color: var(--lav);
   opacity: 0.65;
   font-size: 11px;
-  line-height: 1.6;
+  line-height: 1.3;
   white-space: pre;
+  overflow-x: auto;
 }
 
 .guardians-caption {
@@ -553,15 +592,18 @@ a:focus-visible {
   border: 1px dashed color-mix(in srgb, var(--mint) 40%, transparent);
   background: color-mix(in srgb, var(--mint) 8%, transparent);
   overflow: hidden;
-  white-space: nowrap;
 }
 
 .parade-track {
-  display: inline-block;
+  display: flex;
+  width: max-content;
   padding: 7px 0;
-  min-width: 200%;
   color: var(--mint);
-  animation: cat-marquee 18s linear infinite;
+  animation: cat-marquee 30s linear infinite;
+}
+
+.parade-track span {
+  white-space: pre;
 }
 
 .animated-ascii-cat {
@@ -841,13 +883,18 @@ a:focus-visible {
   color: var(--mint);
   opacity: 0.68;
   white-space: pre;
+  overflow-x: auto;
   font-size: 11px;
-  line-height: 1.55;
+  line-height: 1.3;
 }
 
+/* Center the art as a block; NEVER text-align it (that shears multi-line
+   ASCII line-by-line). fit-content + auto margins keeps columns intact. */
 .section-cat-art {
-  text-align: center;
-  opacity: 0.4;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  opacity: 0.45;
 }
 
 .help-backdrop {
