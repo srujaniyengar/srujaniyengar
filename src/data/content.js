@@ -114,6 +114,10 @@ export const EXPERIENCE = [
     period: "2024",
     stack: ["Go", "WhatsApp Business API", "PostgreSQL", "Redis", "gRPC"],
     accent: "lav",
+    metrics: [
+      { value: "38%", label: "p95 latency ↓" },
+      { value: "at-least-once", label: "delivery guarantee" },
+    ],
     bullets: [
       "Built a high-throughput WhatsApp messaging engine in Go for webhook ingestion, template dispatch, and delivery-state tracking.",
       "Designed idempotent queues to guarantee at-least-once delivery under network partitions.",

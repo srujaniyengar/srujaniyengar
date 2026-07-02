@@ -145,6 +145,19 @@ export function ExpCard({ exp, index }) {
         </div>
       </div>
 
+      {exp.metrics?.length ? (
+        <div className="exp-metrics">
+          {exp.metrics.map((metric) => (
+            <div key={metric.label} className="exp-metric" style={{ borderColor: `${c}55` }}>
+              <span className="exp-metric-value" style={{ color: c }}>
+                {metric.value}
+              </span>
+              <span className="exp-metric-label">{metric.label}</span>
+            </div>
+          ))}
+        </div>
+      ) : null}
+
       <div className="exp-bullets">
         {exp.bullets.map((bullet) => (
           <div key={bullet} className="exp-bullet-row">

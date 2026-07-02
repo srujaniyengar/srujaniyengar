@@ -12,6 +12,7 @@ import {
 import { NAV, COMMANDS } from "./data/content";
 import { themes } from "./data/themes";
 import { useThemeStore } from "./store/themeStore";
+import { useVimBindings } from "./hooks/useVimBindings";
 
 function toCssVarName(tokenName) {
   return `--${tokenName.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}`;
@@ -26,7 +27,7 @@ export default function App() {
   const [showHelp, setShowHelp] = useState(false);
   const [notif, setNotif] = useState({ msg: "", visible: false });
   const [catState, setCatState] = useState("awake");
-  const [isCompact, setIsCompact] = useState(window.innerWidth < 980);
+  const [isCompact, setIsCompact] = useState(false);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const inputRef = useRef(null);
@@ -160,87 +161,39 @@ export default function App() {
       }
     };
 
+    // Mount gate: the initial render is SSR-safe (isCompact = false); the real
+    // viewport is measured only after the component is mounted in the browser.
+    onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  useEffect(() => {
-    const onKeyDown = (event) => {
-      wakeupCat();
-
-      if (event.key === "Escape") {
-        setShowHelp(false);
-        setCmdMode(false);
-        setCmdValue("");
-        setSidebarFocus(false);
-        inputRef.current?.blur();
-        return;
-      }
-
-      const isTyping = document.activeElement === inputRef.current;
-
-      if (event.key === ":" && !isTyping) {
-        event.preventDefault();
-        setCmdMode(true);
-        setCmdValue("");
-        window.requestAnimationFrame(() => inputRef.current?.focus());
-        return;
-      }
-
-      if (isTyping) {
-        return;
-      }
-
-      if (event.key === "h") {
-        event.preventDefault();
-        if (isCompact) {
-          setMobileNavOpen((prev) => !prev);
-        } else {
-          setSidebarFocus((prev) => !prev);
-        }
-        return;
-      }
-
-      if (sidebarFocus && !isCompact) {
-        if (event.key === "j") {
-          event.preventDefault();
-          setSidebarIdx((prev) => Math.min(prev + 1, NAV.length - 1));
-        }
-        if (event.key === "k") {
-          event.preventDefault();
-          setSidebarIdx((prev) => Math.max(prev - 1, 0));
-        }
-        if (event.key === "Enter") {
-          event.preventDefault();
-          navigate(NAV[sidebarIdx].id);
-        }
-        return;
-      }
-
-      if (event.key === "g") {
-        contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      if (event.key === "G") {
-        contentRef.current?.scrollTo({ top: 200000, behavior: "smooth" });
-      }
-      if (event.key === "j") {
-        contentRef.current?.scrollBy({ top: 66, behavior: "smooth" });
-      }
-      if (event.key === "k") {
-        contentRef.current?.scrollBy({ top: -66, behavior: "smooth" });
-      }
-    };
-
-    window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
-  }, [isCompact, navigate, sidebarFocus, sidebarIdx, wakeupCat]);
+  useVimBindings({
+    isCompact,
+    sidebarFocus,
+    mobileNavOpen,
+    sidebarIdx,
+    inputRef,
+    contentRef,
+    navigate,
+    wakeupCat,
+    setSidebarFocus,
+    setMobileNavOpen,
+    setSidebarIdx,
+    setCmdMode,
+    setCmdValue,
+    setShowHelp,
+  });
 
   const currentNav = NAV.find((item) => item.id === activeNav);
+  // The active navigable surface: mobile drawer when compact, else the sidebar.
+  const navActive = isCompact ? mobileNavOpen : sidebarFocus;
+  const modeLabel = cmdMode ? "COMMAND" : navActive ? "NAV" : "NORMAL";
 
   return (
     <div className="app-shell">
       <header className="topline">
-        <div className="mode-pill">{cmdMode ? "COMMAND" : sidebarFocus ? "SIDEBAR" : "NORMAL"}</div>
+        <div className="mode-pill">{modeLabel}</div>
         <div className="path-label">~/srujan/{activeNav}</div>
         <button
           type="button"
@@ -252,7 +205,11 @@ export default function App() {
       </header>
 
       <div className="workspace-body">
-        <aside className={`sidebar ${isCompact ? "compact" : ""} ${mobileNavOpen ? "open" : ""}`}>
+        <aside
+          className={`sidebar ${isCompact ? "compact" : ""} ${mobileNavOpen ? "open" : ""}`}
+          aria-hidden={isCompact && !mobileNavOpen ? true : undefined}
+          inert={isCompact && !mobileNavOpen ? true : undefined}
+        >
           <div className="sidebar-head">
             <span>system navigator</span>
             <span className="sidebar-cat" title={catState === "sleeping" ? "sleeping" : "awake"}>
@@ -263,7 +220,7 @@ export default function App() {
           <nav className="sidebar-nav" aria-label="Primary">
             {NAV.map((item, index) => {
               const isActive = activeNav === item.id;
-              const isSelected = sidebarFocus && sidebarIdx === index;
+              const isSelected = navActive && sidebarIdx === index;
 
               return (
                 <button
@@ -289,7 +246,9 @@ export default function App() {
                 key={item.id}
                 type="button"
                 role="tab"
+                id={`tab-${item.id}`}
                 aria-selected={activeNav === item.id}
+                aria-controls={`panel-${item.id}`}
                 className={`section-chip ${activeNav === item.id ? "active" : ""}`}
                 onClick={() => navigate(item.id)}
               >
@@ -299,7 +258,14 @@ export default function App() {
             <ThemeSwitcher themeId={themeId} onChangeTheme={setThemeId} onCycleTheme={cycleTheme} />
           </div>
 
-          <section ref={contentRef} className="content-scroll" aria-live="polite">
+          <section
+            ref={contentRef}
+            className="content-scroll"
+            role="tabpanel"
+            id={`panel-${activeNav}`}
+            aria-labelledby={`tab-${activeNav}`}
+            tabIndex={0}
+          >
             {activeNav === "home" ? <HomePanel /> : null}
             {activeNav === "exp" ? <ExpPanel /> : null}
             {activeNav === "kernel" ? <KernelPanel /> : null}
@@ -311,24 +277,17 @@ export default function App() {
       </div>
 
       <footer className="command-footer">
-        <span
+        <button
+          type="button"
           className="command-trigger"
           onClick={() => {
             setCmdMode(true);
             window.requestAnimationFrame(() => inputRef.current?.focus());
           }}
-          role="button"
-          tabIndex={0}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              setCmdMode(true);
-              window.requestAnimationFrame(() => inputRef.current?.focus());
-            }
-          }}
         >
-          :
-        </span>
+          <span aria-hidden="true">:</span>
+          <span className="sr-only">Open command input</span>
+        </button>
 
         <input
           ref={inputRef}
@@ -357,7 +316,7 @@ export default function App() {
         />
 
         <div className="status-right">
-          <span>-- {cmdMode ? "COMMAND" : sidebarFocus ? "SIDEBAR" : "NORMAL"} --</span>
+          <span>-- {modeLabel} --</span>
           <span>{currentNav?.label}</span>
           <span>{themes[themeId]?.label}</span>
           <span>{catState === "sleeping" ? "zzZ ^._.^" : "(^._.^)ﾉ"}</span>
