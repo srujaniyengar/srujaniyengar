@@ -85,6 +85,11 @@ const TAIL = [
 const TAIL_ORDER = [0, 1, 2, 1];
 const TAIL_ASLEEP = ["", "", "_,"];
 
+// Bottom row of the cat: paws alternate while it walks.
+const PAWS = ["(__(__)___(__)__)", "(_(__)_____(__)_)"];
+const STRIDE_PX = 3;
+const STRIDE_MS = 90;
+
 // Pupil glyph by vertical look: up, level, down.
 const PUPIL = { "-1": "°", 0: "o", 1: "." };
 
@@ -96,8 +101,9 @@ function socket(glyph, h) {
 }
 
 /**
- * The cat itself. Eyes follow the pointer in every direction (nine looks:
- * the compass points plus straight ahead); click or tap it to pet it.
+ * The cat itself. It wanders along the bottom of its parent: strolls a while,
+ * sits a while, turns at the edges, and stops to be petted. Eyes follow the
+ * pointer in every direction; click or tap it to pet it.
  */
 export function PetCat({ pet, alert = false, className = "" }) {
   const ref = useRef(null);
@@ -105,6 +111,36 @@ export function PetCat({ pet, alert = false, className = "" }) {
   const [blink, setBlink] = useState(false);
   const [hover, setHover] = useState(false);
   const [wag, setWag] = useState(0);
+  const [walk, setWalk] = useState({ x: 24, dir: 1, moving: false, step: 0 });
+  const phase = useRef(0); // ticks left in the current stroll or sit
+
+  useEffect(() => {
+    const still =
+      pet.sleeping ||
+      pet.happy ||
+      hover ||
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (still) return undefined;
+    const timer = window.setInterval(() => {
+      setWalk((w) => {
+        if (phase.current-- <= 0) {
+          phase.current = 20 + Math.floor(Math.random() * 60);
+          return { ...w, moving: !w.moving };
+        }
+        if (!w.moving) return w;
+        const el = ref.current;
+        const max = Math.max(0, (el?.parentElement?.clientWidth ?? 0) - (el?.offsetWidth ?? 0));
+        let { x, dir } = w;
+        x += dir * STRIDE_PX;
+        if (x <= 0 || x >= max) {
+          dir = -dir;
+          x = Math.min(Math.max(x, 0), max);
+        }
+        return { x, dir, moving: true, step: w.step ^ 1 };
+      });
+    }, STRIDE_MS);
+    return () => window.clearInterval(timer);
+  }, [pet.sleeping, pet.happy, hover]);
 
   // The tail wags while the cat is awake, faster when it is happy.
   useEffect(() => {
@@ -158,8 +194,11 @@ export function PetCat({ pet, alert = false, className = "" }) {
     };
   }, [pet.sleeping]);
 
+  // The art is drawn with the tail on the right, so it is mirrored when the cat
+  // walks right; the pupils are flipped back so they still follow the pointer.
+  const mirrored = walk.dir === 1;
   let eye;
-  let h = look.h;
+  let h = mirrored ? -look.h : look.h;
   if (pet.sleeping || blink) {
     eye = "-";
     h = 0;
@@ -180,7 +219,7 @@ export function PetCat({ pet, alert = false, className = "" }) {
     "   )         (",
     `  (           )${tail[0]}`,
     ` ( (  )   (  ) )${tail[1]}`,
-    `(__(__)___(__)__)${tail[2]}`,
+    `${PAWS[walk.moving ? walk.step : 0]}${tail[2]}`,
   ];
 
   return (
@@ -188,6 +227,7 @@ export function PetCat({ pet, alert = false, className = "" }) {
       ref={ref}
       type="button"
       className={`pet ${pet.sleeping ? "asleep" : ""} ${className}`.trim()}
+      style={{ transform: `translateX(${walk.x}px) scaleX(${mirrored ? -1 : 1})` }}
       onClick={pet.pet}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}

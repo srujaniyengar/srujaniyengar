@@ -1,4 +1,3 @@
-import { PetCat } from "./Pet";
 import { Ext, ExpEntry, ProjectEntry, SectionHeader } from "./PortfolioBits";
 
 function Fact({ k, children }) {
@@ -19,7 +18,7 @@ function Section({ id, label, children }) {
   );
 }
 
-export function HomePanel({ p, pet, alert }) {
+export function HomePanel({ p }) {
   const current = p.experience.find((exp) => !exp.end);
   const { github, linkedin, email, x } = p.links;
   const contacts = [
@@ -43,8 +42,6 @@ export function HomePanel({ p, pet, alert }) {
           </p>
           <p className="ln">{p.intro}</p>
         </div>
-        {/* Shown on small screens only; on desktop the same cat lives in the file tree. */}
-        <PetCat pet={pet} alert={alert} className="hero-pet" />
       </div>
 
       <dl className="facts">

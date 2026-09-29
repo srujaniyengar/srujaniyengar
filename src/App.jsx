@@ -216,7 +216,6 @@ export default function App() {
               </li>
             ))}
           </ul>
-          <PetCat pet={pet} alert={cmdMode} className="tree-pet" />
         </aside>
 
         <main ref={contentRef} className="content-scroll" tabIndex={-1}>
@@ -236,7 +235,7 @@ export default function App() {
             ))}
           </nav>
           <div className="buffer">
-            <HomePanel p={profile} pet={pet} alert={cmdMode} />
+            <HomePanel p={profile} />
             <ExpPanel p={profile} />
             <ProjectsPanel p={profile} />
             <OffDutyPanel p={profile} />
@@ -247,6 +246,8 @@ export default function App() {
             </div>
           </div>
         </main>
+
+        <PetCat pet={pet} alert={cmdMode} />
       </div>
 
       <footer className="command-footer">

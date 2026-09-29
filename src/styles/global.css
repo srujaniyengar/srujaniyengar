@@ -1,5 +1,5 @@
 /* The page is a markdown file open in vim: NERDTree on the left, a numbered
-   buffer, syntax colors instead of boxes. Motion: only the hero cat blinks. */
+   buffer, syntax colors instead of boxes. Motion: only the cat moves. */
 
 * {
   box-sizing: border-box;
@@ -157,6 +157,7 @@ pre,
 }
 
 .workspace {
+  position: relative; /* the cat wanders along its bottom edge */
   display: grid;
   grid-template-columns: 26ch 1fr;
   min-height: 0;
@@ -202,11 +203,6 @@ pre,
 .tree a.active {
   background: var(--lav);
   color: var(--on-lav);
-}
-
-.tree-pet {
-  margin-top: auto;
-  margin-left: -6px;
 }
 
 /* buffer */
@@ -383,6 +379,10 @@ li::marker {
 /* the pet */
 
 .pet {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 2;
   display: block;
   border: 0;
   padding: 4px;
@@ -402,10 +402,6 @@ li::marker {
 
 .pet:hover {
   color: var(--amber);
-}
-
-.hero-pet {
-  display: none;
 }
 
 /* command line */
@@ -579,10 +575,6 @@ li::marker {
   .hero {
     grid-template-columns: 1fr;
     gap: 8px;
-  }
-
-  .hero-pet {
-    display: block;
   }
 
   .pet pre {
