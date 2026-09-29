@@ -1,65 +1,38 @@
-<div align="center">
-<pre>
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⢚⠝⠉⣧⠀
-⠀⠀⠀⠀⠀⠀⡞⠛⢝⠲⢤⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣠⠞⢠⠂⠀⠀⢸⠀
-⠀⠀⠀⠀⠀⠀⡇⠀⠀⠑⢄⠉⠳⢤⡤⠴⠖⡖⠒⠒⠚⠥⢴⡁⠀⠀⠀⠀⡇
-⠀⠀⠀⠀⠀⠀⢧⠀⠀⠀⢀⡽⠊⠁⠀⠀⠀⢧⠀⠀⠀⠀⠀⠀⠑⢄⠀⢰⠀
-⠀⠀⠀⠀⠀⠀⠸⡄⠀⡠⠃⠀⠀⠀⠀⠀⢠⠀⢃⠀⢀⠤⠐⠂⠤⡀⠑⡎⠀
-⠀⠀⠀⠀⠀⠀⠀⠹⣴⠁⡠⠂⠉⣨⡵⣦⡆⠀⠀⢳⡟⢻⣷⣦⠀⠰⠀⢹⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⡇⠀⡇⠀⣾⣿⣧⣼⠑⠀⠀⡇⢿⠛⠛⡹⠀⡰⠀⢸⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⣧⠀⠱⣀⠙⠠⠤⢊⠔⠠⠤⠈⠂⠬⠥⠐⠚⠀⠤⣼⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠘⣄⠤⠒⠉⠉⠉⢄⠀⡠⠒⠤⠀⠜⠁⠀⠠⠉⣩⠏⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⠛⢎⡁⠄⡀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡶⣏⠉⠀
-⠀⠀⠀⠀⠀⠀⠀⠀⠀⡴⠋⡩⠚⡤⢀⣀⣀⣀⣀⣀⡠⠤⠐⠊⠁⡇⠀⠀⠀
-⠀⠀⠀⠀⠀⠀⠀⣠⠊⠀⠀⠀⡰⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡇⠀⠀⠀
-⠀⠀⠀⠀⠀⢀⡞⠁⠀⠀⠀⡰⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢸⠃⠀⠀⠀
-⠀⠀⠀⠀⢀⡎⠀⠀⠀⡠⠊⠀⠘⠀⠀⠀⠀⠈⢹⠉⠁⠀⠀⠀⢸⠀⠀⠀⠀
-⠀⢀⡴⠚⠉⠇⠐⠒⠁⠀⠀⠀⠀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⡞⠀⠀⠀⠀
-⣰⠋⠀⢀⠤⡆⠀⠀⠀⢀⡀⠀⢀⣰⢀⡀⠀⠀⡀⣀⡀⠀⢀⣰⠃⠀⠀⠀⠀
-⣿⠀⠀⠐⠤⠴⠤⠤⠤⠯⣰⠀⡄⠘⡃⠠⠀⡄⠸⠁⢠⠀⠀⠙⡆⠀⠀⠀⠀
-⠈⢦⡀⠀⠀⠀⠀⠀⠀⠀⣸⠛⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠉⠀⠀⠀⠀⠀
-⠀⠀⠉⠁⠒⠒⠒⠒⠒⠚⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀
-</pre>
-</div>
+<!-- Generated from profile.json by scripts/readme.mjs. Do not edit by hand. -->
 
-<h1 align="center">Srujan Iyengar</h1>
-<p align="center">
-  <img src="https://img.shields.io/badge/System_Software-Engineer-blue" />
-  <img src="https://img.shields.io/badge/Open--Source-Contributor-green" />
-  <img src="https://img.shields.io/badge/Tech-Explorer-orange" />
-</p>
+# Srujan Iyengar
 
----
+Systems, backend and infrastructure engineering. Security Engineering Intern at Appfend.  
+B.Tech Computer Science and Engineering (IoT), Shiv Nadar University Chennai, Aug 2027 (expected). Based in Bengaluru, India.
 
-### About Me
+## Now
 
-- 🎓 CS Student into **System Software & Backend**
-- 🌍 I LOVE CATS :3
+**Appfend**, Security Engineering Intern (May 2026 to present).
+Multi-tenant microVM sandbox on k3s with Kata Containers, Cloud Hypervisor and Cilium.
 
----
+- Fail-closed CEL admission policies that enforce the Kata runtime class and reject token automount.
+- Enabled Kata guest seccomp; ran the Cloud Hypervisor VMM as non-root.
+- Root-caused Kata VM memory escaping cgroup limits and fixed it.
+- Identity-based Cilium policies for tenant isolation.
+- Test harness that enforces threat-to-test coverage both ways, gated in CI by a Go merge gate.
 
-### Toolkit
+**TruckHai**, Backend Engineer Intern (Dec 2025 to May 2026).
+Go microservice with a rate limiter, a worker-pool pipeline and DAG orchestration.
 
-<p align="center">
-  <img src="https://img.shields.io/badge/Linux-%23000000.svg?logo=linux&logoColor=white" />
-  <img src="https://img.shields.io/badge/C-00599C?logo=c&logoColor=white" />
-  <img src="https://img.shields.io/badge/C++-00599C?logo=cplusplus&logoColor=white" />
-  <img src="https://img.shields.io/badge/Go-00ADD8?logo=go&logoColor=white" />
-  <img src="https://img.shields.io/badge/Java-007396?logo=java&logoColor=white" />
-  <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" />
+## Projects
 
-<img src="https://img.shields.io/badge/PostgreSQL-336791?logo=postgresql&logoColor=white" />
-  <img src="https://img.shields.io/badge/Arduino-00979D?logo=arduino&logoColor=white" />
-</p>
+- **Lab Control Plane**: Node.js/Fastify service that places and reaps lab pods across k3s clusters, with idempotency, rollback, capacity-aware placement and Prometheus metrics.
+- **[Bucellarii](https://srujaniyengar.github.io/Bucellarii/)**: eBPF/XDP packet filter in C with a Go control daemon.
+- **[Gravity](https://github.com/srujaniyengar/Gravity_Sim)**: Simulation of staleness- and topology-aware routing against RR, P2C, consistent hashing and least-connections. ([demo](https://srujaniyengar.github.io/Gravity_Sim/))
 
----
+Also: [Deston](https://github.com/srujaniyengar/Deston), [GhostLink](https://github.com/srujaniyengar/GhostLink), [ByeByeSeg](https://github.com/srujaniyengar/ByeByeSeg), [NiftyGoGo](https://github.com/srujaniyengar/NiftyGoGo).
 
-### Connect
+## Skills
 
-<p align="center">
-  <a href="https://www.linkedin.com/in/srujan-iyengar/"><img src="https://img.shields.io/badge/LinkedIn-Srujan_Iyengar-blue?logo=linkedin" /></a>
-  <a href="https://x.com/SrujanIyengar"><img src="https://img.shields.io/badge/Twitter-@SrujanIyengar-1DA1F2?logo=twitter" /></a>
-  <a href="mailto:srujanparthasarathyiyengar@gmail.com"><img src="https://img.shields.io/badge/Email-srujanparthasarathyiyengar%40gmail.com-red?logo=gmail" /></a>
-</p>
+**Languages:** Bash, Go, C, JavaScript (Node.js), Python, Rust, C++  
+**Infrastructure:** Kubernetes (k3s), Kata Containers, Cloud Hypervisor, Cilium, Prometheus, GitHub Actions  
+**Linux:** cgroups v2, systemd, seccomp  
 
+## Contact
+
+[Website](https://srujaniyengar.github.io) · [LinkedIn](https://www.linkedin.com/in/srujan-iyengar) · [X](https://x.com/SrujanIyengar) · srujanparthasarathyiyengar@gmail.com

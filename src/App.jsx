@@ -1,44 +1,62 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import ThemeSwitcher from "./components/ThemeSwitcher";
+import { useCallback, useEffect, useRef, useState } from "react";
+import profile from "../profile.json";
 import { HelpModal, Notif } from "./components/Overlays";
-import {
-  DistPanel,
-  ExpPanel,
-  HomePanel,
-  KernelPanel,
-  MissionPanel,
-  OffDutyPanel,
-} from "./components/Panels";
-import { NAV, COMMANDS } from "./data/content";
-import { themes } from "./data/themes";
-import { useThemeStore } from "./store/themeStore";
+import { ExpPanel, HomePanel, OffDutyPanel, ProjectsPanel } from "./components/Panels";
+import { NAV, COMMANDS } from "./data/nav";
 import { useVimBindings } from "./hooks/useVimBindings";
 
-function toCssVarName(tokenName) {
-  return `--${tokenName.replace(/[A-Z]/g, (match) => `-${match.toLowerCase()}`)}`;
+const THEME_KEY = "theme";
+
+function readTheme() {
+  try {
+    return localStorage.getItem(THEME_KEY);
+  } catch {
+    return null;
+  }
+}
+
+// null = follow the OS light/dark setting; "dark" / "light" = explicit choice via :theme.
+function useTheme() {
+  const [theme, setTheme] = useState(readTheme);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme) {
+      root.setAttribute("data-theme", theme);
+    } else {
+      root.removeAttribute("data-theme");
+    }
+    try {
+      if (theme) localStorage.setItem(THEME_KEY, theme);
+    } catch {
+      // Storage blocked: the choice just lasts for this visit.
+    }
+  }, [theme]);
+
+  const toggle = useCallback(() => {
+    const systemLight = window.matchMedia("(prefers-color-scheme: light)").matches;
+    const current = theme ?? (systemLight ? "light" : "dark");
+    const next = current === "dark" ? "light" : "dark";
+    setTheme(next);
+    return next;
+  }, [theme]);
+
+  return toggle;
 }
 
 export default function App() {
+  const toggleTheme = useTheme();
+
   const [activeNav, setActiveNav] = useState("home");
-  const [sidebarFocus, setSidebarFocus] = useState(false);
-  const [sidebarIdx, setSidebarIdx] = useState(0);
   const [cmdValue, setCmdValue] = useState("");
   const [cmdMode, setCmdMode] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [notif, setNotif] = useState({ msg: "", visible: false });
   const [catState, setCatState] = useState("awake");
-  const [isCompact, setIsCompact] = useState(false);
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const inputRef = useRef(null);
   const contentRef = useRef(null);
   const idleTimer = useRef(null);
-
-  const themeId = useThemeStore((state) => state.themeId);
-  const setThemeId = useThemeStore((state) => state.setThemeId);
-  const cycleTheme = useThemeStore((state) => state.cycleTheme);
-
-  const activeTheme = useMemo(() => themes[themeId] || themes.terminalDark, [themeId]);
 
   const notify = useCallback((msg, duration = 2400) => {
     setNotif({ msg, visible: true });
@@ -50,44 +68,19 @@ export default function App() {
   const wakeupCat = useCallback(() => {
     setCatState("awake");
     window.clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(() => {
-      setCatState("sleeping");
-    }, 5200);
+    idleTimer.current = window.setTimeout(() => setCatState("sleeping"), 5200);
   }, []);
 
-  const navigate = useCallback(
-    (id) => {
-      setActiveNav(id);
-      setSidebarIdx(NAV.findIndex((item) => item.id === id));
-      setSidebarFocus(false);
-      setCmdMode(false);
-      setMobileNavOpen(false);
-      wakeupCat();
-    },
-    [wakeupCat]
-  );
+  const navigate = useCallback((id) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+    setActiveNav(id);
+    setCmdMode(false);
+  }, []);
 
   const handleCommand = useCallback(
     (rawValue) => {
       const cmd = rawValue.trim().toLowerCase();
-      if (!cmd) {
-        return;
-      }
-
-      if (cmd === ":theme") {
-        cycleTheme();
-        notify("theme cycled");
-        return;
-      }
-
-      if (cmd.startsWith(":theme ")) {
-        const candidate = cmd.replace(":theme", "").trim();
-        if (themes[candidate]) {
-          setThemeId(candidate);
-          notify(`theme set: ${themes[candidate].label}`);
-        } else {
-          notify(`unknown theme: ${candidate}`);
-        }
+      if (!cmd || cmd === ":") {
         return;
       }
 
@@ -97,184 +90,94 @@ export default function App() {
         return;
       }
 
-      if (target === "__help") {
-        setShowHelp(true);
-        return;
-      }
-      if (target === "__git") {
-        window.open("https://github.com/srujaniyengar", "_blank", "noopener,noreferrer");
-        notify("opening github profile");
-        return;
-      }
-      if (target === "__coffee") {
-        wakeupCat();
-        notify("cat colony online =^._.^=");
-        return;
-      }
-      if (target === "__q") {
-        notify("E37: No write since last change. Use :q! perhaps?");
-        return;
-      }
-      if (target === "__q!") {
-        notify("you cannot quit. the cats said no.");
-        return;
-      }
-      if (target === "__w") {
-        notify("portfolio saved");
-        return;
-      }
-      if (target === "__wq") {
-        notify("saved, but still not quitting");
-        return;
-      }
+      const actions = {
+        __help: () => setShowHelp(true),
+        __theme: () => notify(`theme: ${toggleTheme()}`),
+        __git: () => {
+          window.open(profile.links.github, "_blank", "noopener,noreferrer");
+          notify("opening github profile");
+        },
+        __q: () => notify("E37: No write since last change. Use :q! perhaps?"),
+        "__q!": () => notify("you cannot quit. the cat said no."),
+        __w: () => notify("portfolio saved"),
+        __wq: () => notify("saved, but still not quitting"),
+      };
 
+      if (actions[target]) {
+        actions[target]();
+        return;
+      }
       navigate(target);
-      notify(`navigated to ${target}`);
     },
-    [cycleTheme, navigate, notify, setThemeId, wakeupCat]
+    [navigate, notify, toggleTheme]
   );
 
+  // Active section = last one whose top has passed the upper third of the scroller;
+  // at the very bottom it is the last section, however short.
   useEffect(() => {
-    const root = document.documentElement;
-    Object.entries(activeTheme.colors).forEach(([tokenName, value]) => {
-      root.style.setProperty(toCssVarName(tokenName), value);
-    });
-    root.setAttribute("data-theme", themeId);
-  }, [activeTheme, themeId]);
-
-  useEffect(() => {
-    idleTimer.current = window.setTimeout(() => {
-      setCatState("sleeping");
-    }, 5200);
-
-    return () => {
-      window.clearTimeout(idleTimer.current);
+    const root = contentRef.current;
+    const onScroll = () => {
+      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight - 4;
+      const line = root.getBoundingClientRect().top + root.clientHeight / 3;
+      const passed = NAV.filter(({ id }) => {
+        const el = document.getElementById(id);
+        return el && el.getBoundingClientRect().top <= line;
+      });
+      const id = atBottom ? NAV[NAV.length - 1].id : (passed.at(-1)?.id ?? NAV[0].id);
+      setActiveNav(id);
     };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => root.removeEventListener("scroll", onScroll);
   }, []);
 
   useEffect(() => {
-    const onResize = () => {
-      const compact = window.innerWidth < 980;
-      setIsCompact(compact);
-      if (!compact) {
-        setMobileNavOpen(false);
-      }
-    };
-
-    // Mount gate: the initial render is SSR-safe (isCompact = false); the real
-    // viewport is measured only after the component is mounted in the browser.
-    onResize();
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    idleTimer.current = window.setTimeout(() => setCatState("sleeping"), 5200);
+    return () => window.clearTimeout(idleTimer.current);
   }, []);
 
   useVimBindings({
-    isCompact,
-    sidebarFocus,
-    mobileNavOpen,
-    sidebarIdx,
     inputRef,
     contentRef,
-    navigate,
     wakeupCat,
-    setSidebarFocus,
-    setMobileNavOpen,
-    setSidebarIdx,
     setCmdMode,
     setCmdValue,
     setShowHelp,
   });
 
-  const currentNav = NAV.find((item) => item.id === activeNav);
-  // The active navigable surface: mobile drawer when compact, else the sidebar.
-  const navActive = isCompact ? mobileNavOpen : sidebarFocus;
-  const modeLabel = cmdMode ? "COMMAND" : navActive ? "NAV" : "NORMAL";
+  const modeLabel = cmdMode ? "COMMAND" : "NORMAL";
 
   return (
     <div className="app-shell">
       <header className="topline">
         <div className="mode-pill">{modeLabel}</div>
         <div className="path-label">~/srujan/{activeNav}</div>
-        <button
-          type="button"
-          className="mobile-nav-toggle"
-          onClick={() => setMobileNavOpen((prev) => !prev)}
-        >
-          {mobileNavOpen ? "close nav" : "open nav"}
-        </button>
       </header>
 
-      <div className="workspace-body">
-        <aside
-          className={`sidebar ${isCompact ? "compact" : ""} ${mobileNavOpen ? "open" : ""}`}
-          aria-hidden={isCompact && !mobileNavOpen ? true : undefined}
-          inert={isCompact && !mobileNavOpen ? true : undefined}
-        >
-          <div className="sidebar-head">
-            <span>system navigator</span>
-            <span className="sidebar-cat" title={catState === "sleeping" ? "sleeping" : "awake"}>
-              {catState === "sleeping" ? "z^._.^z" : "(^._.^)"}
-            </span>
-          </div>
-
-          <nav className="sidebar-nav" aria-label="Primary">
-            {NAV.map((item, index) => {
-              const isActive = activeNav === item.id;
-              const isSelected = navActive && sidebarIdx === index;
-
-              return (
-                <button
-                  key={item.id}
-                  type="button"
-                  className={`nav-item ${isActive ? "active" : ""} ${isSelected ? "selected" : ""}`}
-                  onClick={() => navigate(item.id)}
-                >
-                  <span>{item.label}</span>
-                  {isActive ? <span>^._.^</span> : null}
-                </button>
-              );
-            })}
-          </nav>
-
-          <div className="sidebar-foot">:help for keybindings · hjkl enabled</div>
-        </aside>
-
-        <main className="main-area">
-          <div className="section-chip-row" role="tablist" aria-label="Sections">
-            {NAV.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                role="tab"
-                id={`tab-${item.id}`}
-                aria-selected={activeNav === item.id}
-                aria-controls={`panel-${item.id}`}
-                className={`section-chip ${activeNav === item.id ? "active" : ""}`}
-                onClick={() => navigate(item.id)}
-              >
-                {item.short}.md
-              </button>
-            ))}
-            <ThemeSwitcher themeId={themeId} onChangeTheme={setThemeId} onCycleTheme={cycleTheme} />
-          </div>
-
-          <section
-            ref={contentRef}
-            className="content-scroll"
-            role="tabpanel"
-            id={`panel-${activeNav}`}
-            aria-labelledby={`tab-${activeNav}`}
-            tabIndex={0}
+      <nav className="section-chip-row" aria-label="Sections">
+        {NAV.map((item) => (
+          <a
+            key={item.id}
+            href={`#${item.id}`}
+            className={`section-chip ${activeNav === item.id ? "active" : ""}`}
+            aria-current={activeNav === item.id ? "true" : undefined}
+            onClick={(event) => {
+              event.preventDefault();
+              navigate(item.id);
+            }}
           >
-            {activeNav === "home" ? <HomePanel /> : null}
-            {activeNav === "exp" ? <ExpPanel /> : null}
-            {activeNav === "kernel" ? <KernelPanel /> : null}
-            {activeNav === "dist" ? <DistPanel /> : null}
-            {activeNav === "mission" ? <MissionPanel /> : null}
-            {activeNav === "offduty" ? <OffDutyPanel /> : null}
-          </section>
-        </main>
-      </div>
+            {item.label}
+          </a>
+        ))}
+      </nav>
+
+      <main ref={contentRef} className="content-scroll" tabIndex={-1}>
+        <div className="content">
+          <HomePanel p={profile} />
+          <ExpPanel p={profile} />
+          <ProjectsPanel p={profile} />
+          <OffDutyPanel p={profile} />
+        </div>
+      </main>
 
       <footer className="command-footer">
         <button
@@ -304,22 +207,20 @@ export default function App() {
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              handleCommand(`:${cmdValue}`);
+              handleCommand(`:${cmdValue.replace(/^:/, "")}`);
               setCmdValue("");
               setCmdMode(false);
               inputRef.current?.blur();
             }
           }}
-          placeholder={cmdMode ? "" : "type : for commands (try :help, :mission, :chiv, :theme)"}
+          placeholder={cmdMode ? "" : "type : for commands, :help"}
           className="command-input"
           aria-label="Command input"
         />
 
-        <div className="status-right">
-          <span>-- {modeLabel} --</span>
-          <span>{currentNav?.label}</span>
-          <span>{themes[themeId]?.label}</span>
-          <span>{catState === "sleeping" ? "zzZ ^._.^" : "(^._.^)ﾉ"}</span>
+        <div className="status-right" aria-hidden="true">
+          <span className="status-mode">-- {modeLabel} --</span>
+          <span>{catState === "sleeping" ? "z^._.^z" : "(^._.^)/"}</span>
         </div>
       </footer>
 

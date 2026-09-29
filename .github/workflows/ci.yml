@@ -5,7 +5,6 @@ on:
   push:
     branches:
       - main
-      - master
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -29,6 +28,11 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: README in sync with profile.json
+        run: |
+          node scripts/readme.mjs
+          git diff --exit-code readme.md || { echo "Run: node scripts/readme.mjs and commit readme.md"; exit 1; }
 
       - name: Format check
         run: npm run format:check

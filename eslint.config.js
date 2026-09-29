@@ -7,7 +7,7 @@ import eslintConfigPrettier from "eslint-config-prettier";
 
 export default [
   {
-    ignores: ["dist", "node_modules", "SrujanPortfolio.jsx"],
+    ignores: ["dist", "node_modules"],
   },
   {
     files: ["**/*.{js,jsx}"],

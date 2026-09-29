@@ -1,0 +1,117 @@
+{
+  "name": "Srujan Iyengar",
+  "headline": "Systems, backend and infrastructure engineering",
+  "intro": "I work on isolation, Kubernetes security and the automation and tests around them.",
+  "location": "Bengaluru, India",
+  "links": {
+    "site": "https://srujaniyengar.github.io",
+    "github": "https://github.com/srujaniyengar",
+    "linkedin": "https://www.linkedin.com/in/srujan-iyengar",
+    "email": "srujanparthasarathyiyengar@gmail.com",
+    "x": "https://x.com/SrujanIyengar"
+  },
+  "education": {
+    "degree": "B.Tech Computer Science and Engineering (IoT)",
+    "school": "Shiv Nadar University Chennai",
+    "end": "Aug 2027 (expected)"
+  },
+  "experience": [
+    {
+      "company": "Appfend",
+      "role": "Security Engineering Intern",
+      "start": "May 2026",
+      "end": null,
+      "summary": "Multi-tenant microVM sandbox on k3s with Kata Containers, Cloud Hypervisor and Cilium.",
+      "stack": ["k3s", "Kata Containers", "Cloud Hypervisor", "Cilium", "Bash", "Go"],
+      "bullets": [
+        "Fail-closed CEL admission policies that enforce the Kata runtime class and reject token automount.",
+        "Enabled Kata guest seccomp; ran the Cloud Hypervisor VMM as non-root.",
+        "Root-caused Kata VM memory escaping cgroup limits and fixed it.",
+        "Identity-based Cilium policies for tenant isolation.",
+        "Test harness that enforces threat-to-test coverage both ways, gated in CI by a Go merge gate."
+      ]
+    },
+    {
+      "company": "TruckHai",
+      "role": "Backend Engineer Intern",
+      "start": "Dec 2025",
+      "end": "May 2026",
+      "summary": "Go microservice with a rate limiter, a worker-pool pipeline and DAG orchestration.",
+      "stack": ["Go"],
+      "bullets": [
+        "Built a Go microservice.",
+        "Implemented a rate limiter.",
+        "Built a worker-pool pipeline.",
+        "Implemented DAG orchestration."
+      ]
+    }
+  ],
+  "projects": [
+    {
+      "name": "Lab Control Plane",
+      "featured": true,
+      "url": null,
+      "summary": "Node.js/Fastify service that places and reaps lab pods across k3s clusters, with idempotency, rollback, capacity-aware placement and Prometheus metrics.",
+      "tags": ["Node.js", "Fastify", "Kubernetes", "Prometheus"]
+    },
+    {
+      "name": "Bucellarii",
+      "featured": true,
+      "url": "https://srujaniyengar.github.io/Bucellarii/",
+      "summary": "eBPF/XDP packet filter in C with a Go control daemon.",
+      "tags": ["C", "eBPF", "XDP", "Go"]
+    },
+    {
+      "name": "Gravity",
+      "featured": true,
+      "url": "https://github.com/srujaniyengar/Gravity_Sim",
+      "demo": "https://srujaniyengar.github.io/Gravity_Sim/",
+      "summary": "Simulation of staleness- and topology-aware routing against RR, P2C, consistent hashing and least-connections.",
+      "tags": ["TypeScript", "Gossip", "Simulation"]
+    },
+    {
+      "name": "Deston",
+      "featured": false,
+      "url": "https://github.com/srujaniyengar/Deston",
+      "summary": "L4/L7 load balancer in Rust with Tokio and Hyper: weighted round-robin, least-connections and consistent hashing.",
+      "tags": ["Rust", "Tokio", "Hyper"]
+    },
+    {
+      "name": "GhostLink",
+      "featured": false,
+      "url": "https://github.com/srujaniyengar/GhostLink",
+      "summary": "Serverless peer-to-peer messaging with X25519 ECDH and ChaCha20-Poly1305 over KCP.",
+      "tags": ["Rust", "KCP", "UDP"]
+    },
+    {
+      "name": "ByeByeSeg",
+      "featured": false,
+      "url": "https://github.com/srujaniyengar/ByeByeSeg",
+      "summary": "Custom memory allocator on raw sbrk syscalls with ownership-tracking wrappers against double-free and use-after-free.",
+      "tags": ["C", "C++", "Allocator"]
+    },
+    {
+      "name": "NiftyGoGo",
+      "featured": false,
+      "url": "https://github.com/srujaniyengar/NiftyGoGo",
+      "summary": "Terminal UI for live crypto prices over the Binance WebSocket API, built with Bubble Tea.",
+      "tags": ["Go", "Bubble Tea", "WebSocket"]
+    }
+  ],
+  "skills": {
+    "Languages": ["Bash", "Go", "C", "JavaScript (Node.js)", "Python", "Rust", "C++"],
+    "Infrastructure": [
+      "Kubernetes (k3s)",
+      "Kata Containers",
+      "Cloud Hypervisor",
+      "Cilium",
+      "Prometheus",
+      "GitHub Actions"
+    ],
+    "Linux": ["cgroups v2", "systemd", "seccomp"]
+  },
+  "offDuty": {
+    "chivalry2": { "level": 1000, "note": "Heavy Mace" },
+    "chess": { "site": "chess.com", "rating": 800 }
+  }
+}
