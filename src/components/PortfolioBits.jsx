@@ -1,5 +1,3 @@
-import { SmallCat } from "./Cats";
-
 // Vim-style file labels, keyed by project name. Presentation only; facts live in profile.json.
 const FILE_LABEL = {
   "Lab Control Plane": "lab-control-plane.js",
@@ -25,12 +23,11 @@ export function Ext({ href, children }) {
   );
 }
 
-export function SectionHeader({ id, label, cat }) {
+export function SectionHeader({ id, label }) {
   return (
     <h2 className="ln" id={`${id}-title`}>
       <span className="md">## </span>
       {label}
-      {cat ? <SmallCat face={cat} /> : null}
     </h2>
   );
 }

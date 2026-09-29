@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import profile from "../profile.json";
 import { HelpModal, Notif } from "./components/Overlays";
 import { ExpPanel, HomePanel, OffDutyPanel, ProjectsPanel } from "./components/Panels";
+import { PetCat, usePet } from "./components/Pet";
 import { NAV, COMMANDS } from "./data/nav";
 import { useVimBindings } from "./hooks/useVimBindings";
 
@@ -52,11 +53,9 @@ export default function App() {
   const [cmdMode, setCmdMode] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [notif, setNotif] = useState({ msg: "", visible: false });
-  const [catState, setCatState] = useState("awake");
 
   const inputRef = useRef(null);
   const contentRef = useRef(null);
-  const idleTimer = useRef(null);
 
   const notify = useCallback((msg, duration = 2400) => {
     setNotif({ msg, visible: true });
@@ -65,11 +64,8 @@ export default function App() {
     }, duration);
   }, []);
 
-  const wakeupCat = useCallback(() => {
-    setCatState("awake");
-    window.clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(() => setCatState("sleeping"), 5200);
-  }, []);
+  const pet = usePet(notify);
+  const wakeupCat = pet.wake;
 
   const navigate = useCallback((id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -93,6 +89,9 @@ export default function App() {
       const actions = {
         __help: () => setShowHelp(true),
         __theme: () => notify(`theme: ${toggleTheme()}`),
+        __pet: pet.pet,
+        __feed: pet.feed,
+        __cat: pet.status,
         __git: () => {
           window.open(profile.links.github, "_blank", "noopener,noreferrer");
           notify("opening github profile");
@@ -109,7 +108,7 @@ export default function App() {
       }
       navigate(target);
     },
-    [navigate, notify, toggleTheme]
+    [navigate, notify, pet, toggleTheme]
   );
 
   // Active section = last one whose top has passed the upper third of the scroller;
@@ -128,11 +127,6 @@ export default function App() {
     };
     root.addEventListener("scroll", onScroll, { passive: true });
     return () => root.removeEventListener("scroll", onScroll);
-  }, []);
-
-  useEffect(() => {
-    idleTimer.current = window.setTimeout(() => setCatState("sleeping"), 5200);
-    return () => window.clearTimeout(idleTimer.current);
   }, []);
 
   useVimBindings({
@@ -175,11 +169,7 @@ export default function App() {
               </li>
             ))}
           </ul>
-          <pre className="cat tree-cat" aria-hidden="true">
-            {catState === "sleeping"
-              ? "  /\\_/\\\n ( -.- ) zz\n  > ^ <"
-              : "  /\\_/\\\n ( o.o )\n  > ^ <"}
-          </pre>
+          <PetCat pet={pet} alert={cmdMode} className="tree-pet" />
         </aside>
 
         <main ref={contentRef} className="content-scroll" tabIndex={-1}>
@@ -199,7 +189,7 @@ export default function App() {
             ))}
           </nav>
           <div className="buffer">
-            <HomePanel p={profile} />
+            <HomePanel p={profile} pet={pet} alert={cmdMode} />
             <ExpPanel p={profile} />
             <ProjectsPanel p={profile} />
             <OffDutyPanel p={profile} />
@@ -253,7 +243,7 @@ export default function App() {
 
         <div className="status-right" aria-hidden="true">
           <span className="status-mode">-- {modeLabel} --</span>
-          <span>{catState === "sleeping" ? "z^._.^z" : "(^._.^)/"}</span>
+          <span>{pet.sleeping ? "z^._.^z" : pet.happy ? "(^.^)♥" : "(^._.^)/"}</span>
           <span className="status-file">{activeNav}.md</span>
         </div>
       </footer>

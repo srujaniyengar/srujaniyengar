@@ -23,8 +23,8 @@
   --font: "JetBrains Mono", ui-monospace, "Cascadia Code", "Courier New", monospace;
   --size-sm: 12px;
   --size-md: 14px;
-  --size-lg: 16px;
-  --size-xl: 22px;
+  --size-lg: 19px;
+  --size-xl: 26px;
 
   color-scheme: dark;
 }
@@ -72,7 +72,7 @@ body {
   color: var(--text);
   font-family: var(--font);
   font-size: var(--size-md);
-  line-height: 1.65;
+  line-height: 1.7;
   font-variant-ligatures: none;
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
@@ -199,10 +199,8 @@ pre,
   color: var(--on-lav);
 }
 
-.tree-cat {
+.tree-pet {
   margin-top: auto;
-  color: var(--mint);
-  line-height: 1.2;
 }
 
 /* buffer */
@@ -251,7 +249,9 @@ pre,
 }
 
 .section + .section {
-  margin-top: 32px;
+  margin-top: 40px;
+  padding-top: 28px;
+  border-top: 1px dashed var(--stroke);
 }
 
 h1 {
@@ -263,18 +263,11 @@ h1 {
 h2 {
   color: var(--lav);
   font-size: var(--size-lg);
-  margin-bottom: 8px;
+  margin-bottom: 16px;
 }
 
 h3 {
   font-size: var(--size-md);
-}
-
-.small-cat {
-  margin-left: 2ch;
-  color: var(--mint);
-  font-size: var(--size-sm);
-  font-weight: 400;
 }
 
 .hero {
@@ -284,18 +277,20 @@ h3 {
   align-items: center;
 }
 
-.hero-cat {
-  color: var(--mint);
-  font-size: var(--size-md);
-  line-height: 1.25;
-}
-
 .lead {
   color: var(--mint);
 }
 
 .entry {
-  margin-top: 16px;
+  margin-top: 20px;
+  padding-left: 1.5ch;
+  border-left: 2px solid var(--stroke);
+}
+
+.entry h3 {
+  color: var(--text);
+  font-size: var(--size-lg);
+  line-height: 1.4;
 }
 
 .date {
@@ -333,6 +328,7 @@ li::marker {
   display: grid;
   grid-template-columns: 16ch 1fr;
   gap: 8px;
+  padding: 2px 0;
 }
 
 .facts dt {
@@ -358,10 +354,32 @@ li::marker {
   padding: 0 6px;
 }
 
-.section .cat:not(.hero-cat):not(.small-cat) {
-  margin-top: 12px;
+/* the pet */
+
+.pet {
+  display: block;
+  border: 0;
+  padding: 4px;
+  background: transparent;
   color: var(--mint);
+  text-align: left;
+}
+
+.pet pre {
+  font-size: var(--size-md);
   line-height: 1.2;
+}
+
+.pet.asleep {
+  color: var(--dim);
+}
+
+.pet:hover {
+  color: var(--amber);
+}
+
+.hero-pet {
+  display: none;
 }
 
 /* command line */
@@ -517,8 +535,8 @@ li::marker {
     gap: 8px;
   }
 
-  .hero-cat {
-    font-size: var(--size-sm);
+  .hero-pet {
+    display: block;
   }
 
   .facts-row,

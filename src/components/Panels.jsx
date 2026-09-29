@@ -1,4 +1,4 @@
-import { HeroCat, SittingCat } from "./Cats";
+import { PetCat } from "./Pet";
 import { Ext, ExpEntry, ProjectEntry, SectionHeader } from "./PortfolioBits";
 
 function Fact({ k, children }) {
@@ -10,16 +10,16 @@ function Fact({ k, children }) {
   );
 }
 
-function Section({ id, label, cat, children }) {
+function Section({ id, label, children }) {
   return (
     <section id={id} className="section" aria-labelledby={`${id}-title`}>
-      {label ? <SectionHeader id={id} label={label} cat={cat} /> : null}
+      {label ? <SectionHeader id={id} label={label} /> : null}
       {children}
     </section>
   );
 }
 
-export function HomePanel({ p }) {
+export function HomePanel({ p, pet, alert }) {
   const current = p.experience.find((exp) => !exp.end);
   const { github, linkedin, email, x } = p.links;
   const contacts = [
@@ -43,7 +43,8 @@ export function HomePanel({ p }) {
           </p>
           <p className="ln">{p.intro}</p>
         </div>
-        <HeroCat />
+        {/* Shown on small screens only; on desktop the same cat lives in the file tree. */}
+        <PetCat pet={pet} alert={alert} className="hero-pet" />
       </div>
 
       <dl className="facts">
@@ -76,7 +77,7 @@ export function HomePanel({ p }) {
 
 export function ExpPanel({ p }) {
   return (
-    <Section id="exp" label="Experience" cat="(^._.^)">
+    <Section id="exp" label="Experience">
       {p.experience.map((exp) => (
         <ExpEntry key={exp.company} exp={exp} />
       ))}
@@ -89,7 +90,7 @@ export function ProjectsPanel({ p }) {
   const others = p.projects.filter((project) => !project.featured);
 
   return (
-    <Section id="projects" label="Projects" cat="=^o.o^=">
+    <Section id="projects" label="Projects">
       {featured.map((project) => (
         <ProjectEntry key={project.name} project={project} />
       ))}
@@ -117,7 +118,7 @@ export function OffDutyPanel({ p }) {
   const { chivalry2, chess } = p.offDuty ?? {};
 
   return (
-    <Section id="offduty" label="Off duty" cat="(=^.^=)">
+    <Section id="offduty" label="Off duty">
       <dl className="facts">
         {chivalry2 ? (
           <Fact k="chivalry 2">
@@ -131,7 +132,6 @@ export function OffDutyPanel({ p }) {
           </Fact>
         ) : null}
       </dl>
-      <SittingCat />
     </Section>
   );
 }

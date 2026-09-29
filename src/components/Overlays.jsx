@@ -5,6 +5,7 @@ const KEY_ROWS = [
   ["g / G", "Top / bottom"],
   [":home :exp :projects :offduty", "Jump to a section"],
   [":theme", "Toggle light / dark"],
+  [":pet  :feed  :cat", "Pet the cat, feed it, ask how it is"],
   [":git", "Open GitHub profile"],
   ["Esc", "Close this / leave command mode"],
 ];
@@ -41,6 +42,7 @@ export function HelpModal({ onClose }) {
             </div>
           ))}
         </dl>
+        <p className="dim">The cat in the corner can also be clicked.</p>
         <button type="button" className="text-button" onClick={onClose}>
           close (Esc)
         </button>
