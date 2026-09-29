@@ -76,6 +76,15 @@ export function usePet(notify) {
   return { sleeping, happy, pets, wake, pet, feed, status };
 }
 
+// Tail frames: suffixes for the cat's last three lines. Wags F0 → F1 → F2 → F1.
+const TAIL = [
+  ["", "  __", "_/"],
+  ["   _", "  /", "_/"],
+  ["  /", "  |", "_/"],
+];
+const TAIL_ORDER = [0, 1, 2, 1];
+const TAIL_ASLEEP = ["", "", "_,"];
+
 // Pupil glyph by vertical look: up, level, down.
 const PUPIL = { "-1": "°", 0: "o", 1: "." };
 
@@ -95,6 +104,19 @@ export function PetCat({ pet, alert = false, className = "" }) {
   const [look, setLook] = useState({ h: 0, v: 0 });
   const [blink, setBlink] = useState(false);
   const [hover, setHover] = useState(false);
+  const [wag, setWag] = useState(0);
+
+  // The tail wags while the cat is awake, faster when it is happy.
+  useEffect(() => {
+    if (pet.sleeping || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return undefined;
+    }
+    const timer = window.setInterval(
+      () => setWag((w) => (w + 1) % TAIL_ORDER.length),
+      pet.happy ? 220 : 650
+    );
+    return () => window.clearInterval(timer);
+  }, [pet.sleeping, pet.happy]);
 
   useEffect(() => {
     if (pet.sleeping || !window.matchMedia("(hover: hover)").matches) {
@@ -150,14 +172,15 @@ export function PetCat({ pet, alert = false, className = "" }) {
     eye = PUPIL[look.v];
   }
 
+  const tail = pet.sleeping ? TAIL_ASLEEP : TAIL[TAIL_ORDER[wag]];
   const lines = [
     pet.sleeping ? "    /\\_____/\\  z" : "    /\\_____/\\",
     `   / ${socket(eye, h)} ${socket(eye, h)} \\`,
     `  ( ==  ${pet.happy ? "w" : "^"}  == )`,
     "   )         (",
-    "  (           )",
-    " ( (  )   (  ) )",
-    "(__(__)___(__)__)",
+    `  (           )${tail[0]}`,
+    ` ( (  )   (  ) )${tail[1]}`,
+    `(__(__)___(__)__)${tail[2]}`,
   ];
 
   return (
