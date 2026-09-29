@@ -11,6 +11,8 @@ export const COMMANDS = {
   ":projects": "projects",
   ":offduty": "offduty",
   ":chiv": "offduty",
+  ":ls": "__ls",
+  ":noh": "__noh",
   ":git": "__git",
   ":help": "__help",
   ":theme": "__theme",

@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 
 const KEY_ROWS = [
-  ["j / k", "Scroll down / up"],
-  ["g / G", "Top / bottom"],
-  [":home :exp :projects :offduty", "Jump to a section"],
+  ["j / k", "Move the cursor line down / up"],
+  ["gg / G", "First / last line"],
+  ["/word  n  N", "Search, next match, previous match"],
+  [":23", "Go to line 23"],
+  [":e exp.md   :ls", "Open a file, list files"],
+  [":noh", "Clear search highlights"],
   [":theme", "Toggle light / dark"],
   [":pet  :feed  :cat", "Pet the cat, feed it, ask how it is"],
   [":git", "Open GitHub profile"],

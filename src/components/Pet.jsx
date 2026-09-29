@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const PETS_KEY = "cat-pets";
 const IDLE_MS = 15000;
-const PURRS = ["purr", "mrrp", "*headbutt*", "prrt?", "*slow blink*"];
+const PURRS = ["purr", "mrrp", "*headbutt*", "prrt?", "*slow blink*", "*kneads*"];
 
 function readPets() {
   try {
@@ -76,24 +76,26 @@ export function usePet(notify) {
   return { sleeping, happy, pets, wake, pet, feed, status };
 }
 
-const EYES = {
-  center: "( o.o )",
-  left: "(o.o  )",
-  right: "(  o.o)",
-  happy: "( ^.^ )",
-  blink: "( -.- )",
-  sleep: "( -.- )",
-  alert: "( O.O )",
-};
+// Pupil glyph by vertical look: up, level, down.
+const PUPIL = { "-1": "°", 0: "o", 1: "." };
 
-/** The cat itself. Its eyes follow the cursor; click or tap it to pet it. */
+// Each eye is a 3-character socket; the pupil sits at index 1 + horizontal look.
+function socket(glyph, h) {
+  const cells = [" ", " ", " "];
+  cells[1 + h] = glyph;
+  return cells.join("");
+}
+
+/**
+ * The cat itself. Eyes follow the pointer in every direction (nine looks:
+ * the compass points plus straight ahead); click or tap it to pet it.
+ */
 export function PetCat({ pet, alert = false, className = "" }) {
   const ref = useRef(null);
-  const [look, setLook] = useState("center");
+  const [look, setLook] = useState({ h: 0, v: 0 });
   const [blink, setBlink] = useState(false);
+  const [hover, setHover] = useState(false);
 
-  // Eyes follow the pointer when the cat is awake. Only on devices with a real
-  // pointer; on touch screens the cat just looks straight ahead.
   useEffect(() => {
     if (pet.sleeping || !window.matchMedia("(hover: hover)").matches) {
       return undefined;
@@ -106,7 +108,9 @@ export function PetCat({ pet, alert = false, className = "" }) {
         const box = ref.current?.getBoundingClientRect();
         if (!box || !box.width) return;
         const dx = event.clientX - (box.left + box.width / 2);
-        setLook(dx < -40 ? "left" : dx > 40 ? "right" : "center");
+        const dy = event.clientY - (box.top + box.height * 0.3);
+        const step = (d, dead) => (d < -dead ? -1 : d > dead ? 1 : 0);
+        setLook({ h: step(dx, 40), v: step(dy, 60) });
       });
     };
     window.addEventListener("mousemove", onMove, { passive: true });
@@ -132,17 +136,29 @@ export function PetCat({ pet, alert = false, className = "" }) {
     };
   }, [pet.sleeping]);
 
-  const eyes = pet.sleeping
-    ? EYES.sleep
-    : pet.happy
-      ? EYES.happy
-      : alert
-        ? EYES.alert
-        : blink
-          ? EYES.blink
-          : EYES[look];
-  const ears = pet.sleeping ? " /\\_/\\  z" : " /\\_/\\";
-  const paws = pet.happy ? " > ^ <  ♥" : " > ^ <";
+  let eye;
+  let h = look.h;
+  if (pet.sleeping || blink) {
+    eye = "-";
+    h = 0;
+  } else if (pet.happy) {
+    eye = "^";
+    h = 0;
+  } else if (alert || hover) {
+    eye = "O";
+  } else {
+    eye = PUPIL[look.v];
+  }
+
+  const lines = [
+    pet.sleeping ? "    /\\_____/\\  z" : "    /\\_____/\\",
+    `   / ${socket(eye, h)} ${socket(eye, h)} \\`,
+    `  ( ==  ${pet.happy ? "w" : "^"}  == )`,
+    "   )         (",
+    "  (           )",
+    " ( (  )   (  ) )",
+    "(__(__)___(__)__)",
+  ];
 
   return (
     <button
@@ -150,10 +166,12 @@ export function PetCat({ pet, alert = false, className = "" }) {
       type="button"
       className={`pet ${pet.sleeping ? "asleep" : ""} ${className}`.trim()}
       onClick={pet.pet}
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
       title="pet the cat"
       aria-label="Pet the cat"
     >
-      <pre aria-hidden="true">{[ears, eyes, paws].join("\n")}</pre>
+      <pre aria-hidden="true">{lines.join("\n")}</pre>
     </button>
   );
 }

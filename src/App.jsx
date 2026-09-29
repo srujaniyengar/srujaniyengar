@@ -4,6 +4,7 @@ import { HelpModal, Notif } from "./components/Overlays";
 import { ExpPanel, HomePanel, OffDutyPanel, ProjectsPanel } from "./components/Panels";
 import { PetCat, usePet } from "./components/Pet";
 import { NAV, COMMANDS } from "./data/nav";
+import { useCursor } from "./hooks/useCursor";
 import { useVimBindings } from "./hooks/useVimBindings";
 
 const THEME_KEY = "theme";
@@ -53,6 +54,8 @@ export default function App() {
   const [cmdMode, setCmdMode] = useState(false);
   const [showHelp, setShowHelp] = useState(false);
   const [notif, setNotif] = useState({ msg: "", visible: false });
+  const [scrollPct, setScrollPct] = useState("Top");
+  const [openMsg, setOpenMsg] = useState("");
 
   const inputRef = useRef(null);
   const contentRef = useRef(null);
@@ -65,7 +68,7 @@ export default function App() {
   }, []);
 
   const pet = usePet(notify);
-  const wakeupCat = pet.wake;
+  const cursor = useCursor(contentRef, notify);
 
   const navigate = useCallback((id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -75,19 +78,44 @@ export default function App() {
 
   const handleCommand = useCallback(
     (rawValue) => {
-      const cmd = rawValue.trim().toLowerCase();
+      const cmd = rawValue.trim();
       if (!cmd || cmd === ":") {
         return;
       }
 
-      const target = COMMANDS[cmd];
+      if (cmd.startsWith("/")) {
+        cursor.search(cmd.slice(1));
+        return;
+      }
+
+      const lower = cmd.toLowerCase();
+
+      if (/^:\d+$/.test(lower)) {
+        cursor.goTo(Number(lower.slice(1)) - 1);
+        return;
+      }
+
+      const open = lower.match(/^:e\s+(\S+)/);
+      if (open) {
+        const id = open[1].replace(/\.md$/, "");
+        if (NAV.some((item) => item.id === id)) {
+          navigate(id);
+        } else {
+          notify(`E345: Can't find file "${open[1]}" in path`);
+        }
+        return;
+      }
+
+      const target = COMMANDS[lower];
       if (!target) {
-        notify(`E492: Not an editor command: ${cmd}`);
+        notify(`E492: Not an editor command: ${lower}`);
         return;
       }
 
       const actions = {
         __help: () => setShowHelp(true),
+        __ls: () => notify(NAV.map((item, i) => `${i + 1} "${item.label}"`).join("   "), 4000),
+        __noh: cursor.clearSearch,
         __theme: () => notify(`theme: ${toggleTheme()}`),
         __pet: pet.pet,
         __feed: pet.feed,
@@ -98,7 +126,7 @@ export default function App() {
         },
         __q: () => notify("E37: No write since last change. Use :q! perhaps?"),
         "__q!": () => notify("you cannot quit. the cat said no."),
-        __w: () => notify("portfolio saved"),
+        __w: () => notify(`"portfolio.md" ${cursor.count}L written`),
         __wq: () => notify("saved, but still not quitting"),
       };
 
@@ -108,15 +136,33 @@ export default function App() {
       }
       navigate(target);
     },
-    [navigate, notify, pet, toggleTheme]
+    [cursor, navigate, notify, pet, toggleTheme]
   );
 
+  // Vim's message when a file opens: "portfolio.md" 49L, 3.2K
+  useEffect(() => {
+    if (!cursor.count) return undefined;
+    const text = document.querySelector(".buffer")?.textContent ?? "";
+    const bytes = new TextEncoder().encode(text).length;
+    setOpenMsg(`"portfolio.md" ${cursor.count}L, ${(bytes / 1024).toFixed(1)}K`);
+    const timer = window.setTimeout(() => setOpenMsg(""), 5000);
+    return () => window.clearTimeout(timer);
+  }, [cursor.count]);
+
   // Active section = last one whose top has passed the upper third of the scroller;
-  // at the very bottom it is the last section, however short.
+  // at the very bottom it is the last section, however short. Also vim's Top/N%/Bot.
   useEffect(() => {
     const root = contentRef.current;
     const onScroll = () => {
-      const atBottom = root.scrollTop + root.clientHeight >= root.scrollHeight - 4;
+      const max = root.scrollHeight - root.clientHeight;
+      const atBottom = root.scrollTop >= max - 4;
+      setScrollPct(
+        root.scrollTop <= 0
+          ? "Top"
+          : atBottom
+            ? "Bot"
+            : `${Math.round((root.scrollTop / max) * 100)}%`
+      );
       const line = root.getBoundingClientRect().top + root.clientHeight / 3;
       const passed = NAV.filter(({ id }) => {
         const el = document.getElementById(id);
@@ -131,14 +177,15 @@ export default function App() {
 
   useVimBindings({
     inputRef,
-    contentRef,
-    wakeupCat,
+    cursor,
+    wakeupCat: pet.wake,
     setCmdMode,
     setCmdValue,
     setShowHelp,
   });
 
   const modeLabel = cmdMode ? "COMMAND" : "NORMAL";
+  const searching = cmdValue.startsWith("/");
 
   return (
     <div className="app-shell">
@@ -211,7 +258,7 @@ export default function App() {
             window.requestAnimationFrame(() => inputRef.current?.focus());
           }}
         >
-          <span aria-hidden="true">:</span>
+          <span aria-hidden="true">{searching ? " " : ":"}</span>
           <span className="sr-only">Open command input</span>
         </button>
 
@@ -220,7 +267,7 @@ export default function App() {
           value={cmdValue}
           onChange={(event) => {
             setCmdValue(event.target.value);
-            wakeupCat();
+            pet.wake();
           }}
           onFocus={() => setCmdMode(true)}
           onBlur={() => {
@@ -230,21 +277,23 @@ export default function App() {
           }}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
-              handleCommand(`:${cmdValue.replace(/^:/, "")}`);
+              handleCommand(searching ? cmdValue : `:${cmdValue.replace(/^:/, "")}`);
               setCmdValue("");
               setCmdMode(false);
               inputRef.current?.blur();
             }
           }}
-          placeholder={cmdMode ? "" : "type : for commands, :help"}
+          placeholder={cmdMode ? "" : openMsg || "type : for commands, / to search, :help"}
           className="command-input"
-          aria-label="Command input"
+          aria-label="Command or search input"
         />
 
         <div className="status-right" aria-hidden="true">
           <span className="status-mode">-- {modeLabel} --</span>
           <span>{pet.sleeping ? "z^._.^z" : pet.happy ? "(^.^)♥" : "(^._.^)/"}</span>
           <span className="status-file">{activeNav}.md</span>
+          <span className="status-pos">{cursor.cursor + 1},1</span>
+          <span className="status-pos">{scrollPct}</span>
         </div>
       </footer>
 

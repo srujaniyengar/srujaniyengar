@@ -83,6 +83,11 @@ a {
   text-underline-offset: 3px;
 }
 
+::selection {
+  background: var(--lav);
+  color: var(--on-lav);
+}
+
 button,
 input {
   font: inherit;
@@ -201,6 +206,7 @@ pre,
 
 .tree-pet {
   margin-top: auto;
+  margin-left: -6px;
 }
 
 /* buffer */
@@ -236,6 +242,26 @@ pre,
   font-size: var(--size-sm);
   font-weight: 400;
   font-style: normal;
+}
+
+/* vim cursorline: the current line gets a tint and a bright number */
+.ln.cursorline {
+  background: color-mix(in srgb, var(--lav) 9%, transparent);
+  box-shadow: -7ch 0 0 color-mix(in srgb, var(--lav) 9%, transparent);
+}
+
+.ln.cursorline::before {
+  color: var(--amber);
+}
+
+/* search: whole matching lines get a faint mark, real matches are painted by ::highlight */
+.ln.match::before {
+  color: var(--mint);
+}
+
+::highlight(search) {
+  background: var(--amber);
+  color: var(--on-lav);
 }
 
 .tildes span {
@@ -366,8 +392,8 @@ li::marker {
 }
 
 .pet pre {
-  font-size: var(--size-md);
-  line-height: 1.2;
+  font-size: 15px;
+  line-height: 1.15;
 }
 
 .pet.asleep {
@@ -526,6 +552,26 @@ li::marker {
     width: 3.5ch;
   }
 
+  /* vim cursorline: the current line gets a tint and a bright number */
+  .ln.cursorline {
+    background: color-mix(in srgb, var(--lav) 9%, transparent);
+    box-shadow: -7ch 0 0 color-mix(in srgb, var(--lav) 9%, transparent);
+  }
+
+  .ln.cursorline::before {
+    color: var(--amber);
+  }
+
+  /* search: whole matching lines get a faint mark, real matches are painted by ::highlight */
+  .ln.match::before {
+    color: var(--mint);
+  }
+
+  ::highlight(search) {
+    background: var(--amber);
+    color: var(--on-lav);
+  }
+
   .tildes span {
     margin-left: -4ch;
   }
@@ -537,6 +583,14 @@ li::marker {
 
   .hero-pet {
     display: block;
+  }
+
+  .pet pre {
+    font-size: 13px;
+  }
+
+  .status-pos {
+    display: none;
   }
 
   .facts-row,

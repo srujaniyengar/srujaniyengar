@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 /**
  * True when the focused element is a native form control or editable surface.
@@ -19,16 +19,19 @@ function isEditableTarget(element) {
 
 /**
  * Vim-style keyboard layer: one window listener with deterministic cleanup.
- * `:` opens the command line, j/k/g/G scroll the page, Esc unwinds everything.
+ * ":" opens the command line, "/" opens search, j/k move the cursor line,
+ * gg/G jump to the ends, n/N step through matches, Esc unwinds everything.
  */
 export function useVimBindings({
   inputRef,
-  contentRef,
+  cursor,
   wakeupCat,
   setCmdMode,
   setCmdValue,
   setShowHelp,
 }) {
+  const pendingG = useRef(0);
+
   useEffect(() => {
     const onKeyDown = (event) => {
       wakeupCat();
@@ -49,34 +52,45 @@ export function useVimBindings({
         return;
       }
 
-      if (event.key === ":") {
+      if (event.key === ":" || event.key === "/") {
         event.preventDefault();
         setCmdMode(true);
-        setCmdValue("");
-        window.requestAnimationFrame(() => inputRef.current?.focus());
+        setCmdValue(event.key === "/" ? "/" : "");
+        // preventDefault above already stops the ":" from being typed, so focus now.
+        inputRef.current?.focus();
         return;
       }
 
-      const content = contentRef.current;
-      if (!content) {
-        return;
-      }
+      const wasPendingG = Date.now() - pendingG.current < 600;
+      pendingG.current = 0;
 
-      if (event.key === "g") {
-        content.scrollTo({ top: 0, behavior: "smooth" });
-      }
-      if (event.key === "G") {
-        content.scrollTo({ top: content.scrollHeight, behavior: "smooth" });
-      }
-      if (event.key === "j") {
-        content.scrollBy({ top: 66, behavior: "smooth" });
-      }
-      if (event.key === "k") {
-        content.scrollBy({ top: -66, behavior: "smooth" });
+      switch (event.key) {
+        case "j":
+          event.preventDefault();
+          cursor.move(1);
+          break;
+        case "k":
+          event.preventDefault();
+          cursor.move(-1);
+          break;
+        case "g":
+          if (wasPendingG) cursor.goTo(0);
+          else pendingG.current = Date.now();
+          break;
+        case "G":
+          cursor.toEnd();
+          break;
+        case "n":
+          cursor.step(1);
+          break;
+        case "N":
+          cursor.step(-1);
+          break;
+        default:
       }
     };
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [inputRef, contentRef, wakeupCat, setCmdMode, setCmdValue, setShowHelp]);
+  }, [inputRef, cursor, wakeupCat, setCmdMode, setCmdValue, setShowHelp]);
 }
