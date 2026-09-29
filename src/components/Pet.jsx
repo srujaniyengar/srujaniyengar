@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const PETS_KEY = "cat-pets";
 const IDLE_MS = 15000;
+const SAY_MS = 2500;
 const PURRS = ["purr", "mrrp", "*headbutt*", "prrt?", "*slow blink*", "*kneads*"];
 
 function readPets() {
@@ -13,16 +14,24 @@ function readPets() {
 }
 
 /**
- * One digital pet, shared by every <PetCat> on the page.
- * It sleeps when you leave it alone, wakes when you type, scroll or click,
- * and gets happy when petted or fed. Pets are remembered per browser.
+ * One digital pet. It sleeps when you leave it alone, wakes when you type,
+ * scroll or click, and gets happy when petted or fed. Whatever it says shows
+ * in a speech bubble over the cat. Pets are remembered per browser.
  */
-export function usePet(notify) {
+export function usePet() {
   const [sleeping, setSleeping] = useState(false);
   const [happy, setHappy] = useState(false);
+  const [saying, setSaying] = useState("");
   const [pets, setPets] = useState(readPets);
   const idleTimer = useRef(null);
   const happyTimer = useRef(null);
+  const sayTimer = useRef(null);
+
+  const say = useCallback((msg) => {
+    setSaying(msg);
+    window.clearTimeout(sayTimer.current);
+    sayTimer.current = window.setTimeout(() => setSaying(""), SAY_MS);
+  }, []);
 
   const wake = useCallback(() => {
     setSleeping(false);
@@ -35,10 +44,10 @@ export function usePet(notify) {
       wake();
       setHappy(true);
       window.clearTimeout(happyTimer.current);
-      happyTimer.current = window.setTimeout(() => setHappy(false), 2500);
-      notify(msg);
+      happyTimer.current = window.setTimeout(() => setHappy(false), SAY_MS);
+      say(msg);
     },
-    [notify, wake]
+    [say, wake]
   );
 
   const pet = useCallback(() => {
@@ -58,8 +67,8 @@ export function usePet(notify) {
 
   const status = useCallback(() => {
     const mood = happy ? "happy" : sleeping ? "asleep" : "awake";
-    notify(`cat: ${mood} · petted ${pets} time${pets === 1 ? "" : "s"}`);
-  }, [happy, notify, pets, sleeping]);
+    say(`${mood} · petted ${pets} time${pets === 1 ? "" : "s"}`);
+  }, [happy, pets, say, sleeping]);
 
   useEffect(() => {
     wake();
@@ -68,12 +77,13 @@ export function usePet(notify) {
     return () => {
       window.clearTimeout(idleTimer.current);
       window.clearTimeout(happyTimer.current);
+      window.clearTimeout(sayTimer.current);
       window.removeEventListener("click", wake);
       window.removeEventListener("scroll", wake, { capture: true });
     };
   }, [wake]);
 
-  return { sleeping, happy, pets, wake, pet, feed, status };
+  return { sleeping, happy, saying, pets, wake, pet, feed, status };
 }
 
 // Tail frames: suffixes for the cat's last three lines. Wags F0 → F1 → F2 → F1.
@@ -227,14 +237,19 @@ export function PetCat({ pet, alert = false, className = "" }) {
       ref={ref}
       type="button"
       className={`pet ${pet.sleeping ? "asleep" : ""} ${className}`.trim()}
-      style={{ transform: `translateX(${walk.x}px) scaleX(${mirrored ? -1 : 1})` }}
+      style={{ transform: `translateX(${walk.x}px)` }}
       onClick={pet.pet}
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       title="pet the cat"
       aria-label="Pet the cat"
     >
-      <pre aria-hidden="true">{lines.join("\n")}</pre>
+      <span className={`pet-say ${pet.saying ? "show" : ""}`} role="status" aria-live="polite">
+        {pet.saying}
+      </span>
+      <pre aria-hidden="true" style={{ transform: `scaleX(${mirrored ? -1 : 1})` }}>
+        {lines.join("\n")}
+      </pre>
     </button>
   );
 }

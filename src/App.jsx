@@ -67,7 +67,7 @@ export default function App() {
     }, duration);
   }, []);
 
-  const pet = usePet(notify);
+  const pet = usePet();
   const cursor = useCursor(contentRef, notify);
 
   const navigate = useCallback((id) => {
