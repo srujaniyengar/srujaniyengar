@@ -1,3 +1,5 @@
+import { SmallCat } from "./Cats";
+
 // Vim-style file labels, keyed by project name. Presentation only; facts live in profile.json.
 const FILE_LABEL = {
   "Lab Control Plane": "lab-control-plane.js",
@@ -13,67 +15,81 @@ export function period(item) {
   return `${item.start} – ${item.end ?? "present"}`;
 }
 
-export function SectionHeader({ id, label }) {
+export function Ext({ href, children }) {
+  return href ? (
+    <a href={href} target="_blank" rel="noopener noreferrer">
+      {children}
+    </a>
+  ) : (
+    children
+  );
+}
+
+export function SectionHeader({ id, label, cat }) {
   return (
-    <h2 className="section-header" id={`${id}-title`}>
-      <span className="dim"># </span>
+    <h2 className="ln" id={`${id}-title`}>
+      <span className="md">## </span>
       {label}
+      {cat ? <SmallCat face={cat} /> : null}
     </h2>
   );
 }
 
-export function Stack({ items }) {
-  return items?.length ? <p className="stack">{items.join(" · ")}</p> : null;
+export function Tokens({ items }) {
+  return items?.length ? (
+    <p className="ln tokens">
+      {items.map((item) => (
+        <code key={item}>{item}</code>
+      ))}
+    </p>
+  ) : null;
 }
 
-export function ExpCard({ exp }) {
+export function ExpEntry({ exp }) {
   return (
-    <article className="card">
-      <div className="card-head">
-        <h3>{exp.company}</h3>
-        <span className="dim">{period(exp)}</span>
-      </div>
-      <p className="role">{exp.role}</p>
-      <p>{exp.summary}</p>
+    <div className="entry">
+      <h3 className="ln">
+        <span className="md">### </span>
+        {exp.company} <span className="date">{period(exp)}</span>
+      </h3>
+      <p className="ln role">
+        <span className="md">*</span>
+        {exp.role}
+        <span className="md">*</span>
+      </p>
+      <p className="ln">{exp.summary}</p>
       {exp.bullets?.length ? (
         <ul>
           {exp.bullets.map((bullet) => (
-            <li key={bullet}>{bullet}</li>
+            <li key={bullet} className="ln">
+              {bullet}
+            </li>
           ))}
         </ul>
       ) : null}
-      <Stack items={exp.stack} />
-    </article>
+      <Tokens items={exp.stack} />
+    </div>
   );
 }
 
-export function ProjectCard({ project }) {
+export function ProjectEntry({ project }) {
   return (
-    <article className="card">
-      <div className="card-head">
-        <h3>
-          {project.url ? (
-            <a href={project.url} target="_blank" rel="noopener noreferrer">
-              {project.name}
-            </a>
-          ) : (
-            project.name
-          )}
-        </h3>
-        <span className="dim">{FILE_LABEL[project.name]}</span>
-      </div>
-      <p>
+    <div className="entry">
+      <h3 className="ln">
+        <span className="md">### </span>
+        <Ext href={project.url}>{project.name}</Ext>{" "}
+        <span className="file">{FILE_LABEL[project.name]}</span>
+      </h3>
+      <p className="ln">
         {project.summary}
         {project.demo ? (
           <>
             {" "}
-            <a href={project.demo} target="_blank" rel="noopener noreferrer">
-              demo
-            </a>
+            <Ext href={project.demo}>[demo]</Ext>
           </>
         ) : null}
       </p>
-      <Stack items={project.tags} />
-    </article>
+      <Tokens items={project.tags} />
+    </div>
   );
 }

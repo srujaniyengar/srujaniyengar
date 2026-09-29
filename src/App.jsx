@@ -153,31 +153,64 @@ export default function App() {
         <div className="path-label">~/srujan/{activeNav}</div>
       </header>
 
-      <nav className="section-chip-row" aria-label="Sections">
-        {NAV.map((item) => (
-          <a
-            key={item.id}
-            href={`#${item.id}`}
-            className={`section-chip ${activeNav === item.id ? "active" : ""}`}
-            aria-current={activeNav === item.id ? "true" : undefined}
-            onClick={(event) => {
-              event.preventDefault();
-              navigate(item.id);
-            }}
-          >
-            {item.label}
-          </a>
-        ))}
-      </nav>
+      <div className="workspace">
+        <aside className="tree" aria-label="Sections">
+          <p className="tree-title">&quot; NERDTree</p>
+          <p className="dim">~/srujan/</p>
+          <p className="tree-dir">▾ portfolio/</p>
+          <ul>
+            {NAV.map((item) => (
+              <li key={item.id}>
+                <a
+                  href={`#${item.id}`}
+                  className={activeNav === item.id ? "active" : undefined}
+                  aria-current={activeNav === item.id ? "true" : undefined}
+                  onClick={(event) => {
+                    event.preventDefault();
+                    navigate(item.id);
+                  }}
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+          <pre className="cat tree-cat" aria-hidden="true">
+            {catState === "sleeping"
+              ? "  /\\_/\\\n ( -.- ) zz\n  > ^ <"
+              : "  /\\_/\\\n ( o.o )\n  > ^ <"}
+          </pre>
+        </aside>
 
-      <main ref={contentRef} className="content-scroll" tabIndex={-1}>
-        <div className="content">
-          <HomePanel p={profile} />
-          <ExpPanel p={profile} />
-          <ProjectsPanel p={profile} />
-          <OffDutyPanel p={profile} />
-        </div>
-      </main>
+        <main ref={contentRef} className="content-scroll" tabIndex={-1}>
+          <nav className="tabline" aria-label="Sections">
+            {NAV.map((item) => (
+              <a
+                key={item.id}
+                href={`#${item.id}`}
+                className={activeNav === item.id ? "active" : undefined}
+                onClick={(event) => {
+                  event.preventDefault();
+                  navigate(item.id);
+                }}
+              >
+                {item.label}
+              </a>
+            ))}
+          </nav>
+          <div className="buffer">
+            <HomePanel p={profile} />
+            <ExpPanel p={profile} />
+            <ProjectsPanel p={profile} />
+            <OffDutyPanel p={profile} />
+            <div className="tildes" aria-hidden="true">
+              {Array.from({ length: 6 }, (_, i) => (
+                <span key={i}>~</span>
+              ))}
+            </div>
+          </div>
+        </main>
+      </div>
 
       <footer className="command-footer">
         <button
@@ -221,6 +254,7 @@ export default function App() {
         <div className="status-right" aria-hidden="true">
           <span className="status-mode">-- {modeLabel} --</span>
           <span>{catState === "sleeping" ? "z^._.^z" : "(^._.^)/"}</span>
+          <span className="status-file">{activeNav}.md</span>
         </div>
       </footer>
 
