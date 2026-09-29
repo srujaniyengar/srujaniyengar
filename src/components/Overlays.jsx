@@ -8,7 +8,7 @@ const KEY_ROWS = [
   [":e exp.md   :ls", "Open a file, list files"],
   [":noh", "Clear search highlights"],
   [":theme", "Toggle light / dark"],
-  [":pet  :feed  :cat", "Pet the cat, feed it, ask how it is"],
+  [":pet  :feed  :cat", "Pet the cat, drop a mouse for it, ask how it is"],
   [":git", "Open GitHub profile"],
   ["Esc", "Close this / leave command mode"],
 ];

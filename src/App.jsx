@@ -188,7 +188,7 @@ export default function App() {
   const searching = cmdValue.startsWith("/");
 
   return (
-    <div className="app-shell">
+    <div className={`app-shell ${pet.feeding ? "feeding" : ""}`.trim()}>
       <header className="topline">
         <div className="mode-pill">{modeLabel}</div>
         <div className="path-label">~/srujan/{activeNav}</div>
@@ -288,6 +288,16 @@ export default function App() {
           className="command-input"
           aria-label="Command or search input"
         />
+
+        <button
+          type="button"
+          className={`feed-btn ${pet.feeding ? "armed" : ""}`.trim()}
+          onClick={pet.feed}
+          aria-pressed={pet.feeding}
+          title="Drop a mouse for the cat"
+        >
+          {pet.feeding ? "click to drop · esc" : "feed"}
+        </button>
 
         <div className="status-right" aria-hidden="true">
           <span className="status-mode">-- {modeLabel} --</span>

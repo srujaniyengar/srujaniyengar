@@ -23,6 +23,8 @@ export function usePet() {
   const [happy, setHappy] = useState(false);
   const [saying, setSaying] = useState("");
   const [pets, setPets] = useState(readPets);
+  const [feeding, setFeeding] = useState(false); // waiting for a click to drop a mouse
+  const [mouse, setMouse] = useState(null); // clientX of the dropped mouse
   const idleTimer = useRef(null);
   const happyTimer = useRef(null);
   const sayTimer = useRef(null);
@@ -63,7 +65,35 @@ export function usePet() {
     cheer(PURRS[Math.floor(Math.random() * PURRS.length)]);
   }, [cheer]);
 
-  const feed = useCallback(() => cheer("nom nom nom"), [cheer]);
+  // Feeding is a two-step so ordinary clicks stay ordinary: press feed (or :feed),
+  // then the next click anywhere drops a mouse there. Escape or feed again cancels.
+  const feed = useCallback(() => setFeeding((f) => !f), []);
+  const eat = useCallback(() => {
+    setMouse(null);
+    cheer("nom nom nom");
+  }, [cheer]);
+
+  useEffect(() => {
+    if (!feeding) return undefined;
+    say("food?");
+    const onClick = (event) => {
+      if (event.target.closest?.(".feed-btn")) return; // the button toggles itself
+      event.preventDefault();
+      event.stopPropagation();
+      setMouse(event.clientX);
+      setFeeding(false);
+      wake();
+    };
+    const onKey = (event) => {
+      if (event.key === "Escape") setFeeding(false);
+    };
+    window.addEventListener("click", onClick, { capture: true });
+    window.addEventListener("keydown", onKey);
+    return () => {
+      window.removeEventListener("click", onClick, { capture: true });
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [feeding, say, wake]);
 
   const status = useCallback(() => {
     const mood = happy ? "happy" : sleeping ? "asleep" : "awake";
@@ -83,7 +113,7 @@ export function usePet() {
     };
   }, [wake]);
 
-  return { sleeping, happy, saying, pets, wake, pet, feed, status };
+  return { sleeping, happy, saying, pets, feeding, mouse, wake, pet, feed, eat, status };
 }
 
 // Tail frames: suffixes for the cat's last three lines. Wags F0 → F1 → F2 → F1.
@@ -99,6 +129,9 @@ const TAIL_ASLEEP = ["", "", "_,"];
 const PAWS = ["(__(__)___(__)__)", "(_(__)_____(__)_)"];
 const STRIDE_PX = 3;
 const STRIDE_MS = 90;
+const RUN_PX = 8; // chasing a mouse
+const RUN_MS = 40;
+const MOUSE = "<:3)~~~";
 
 // Pupil glyph by vertical look: up, level, down.
 const PUPIL = { "-1": "°", 0: "o", 1: "." };
@@ -122,12 +155,42 @@ export function PetCat({ pet, alert = false, className = "" }) {
   const [hover, setHover] = useState(false);
   const [wag, setWag] = useState(0);
   const [walk, setWalk] = useState({ x: 24, dir: 1, moving: false, step: 0 });
+  const walkRef = useRef(walk);
+  walkRef.current = walk;
   const phase = useRef(0); // ticks left in the current stroll or sit
+
+  // A dropped mouse overrides the stroll: the cat runs to it and eats it.
+  const { mouse, eat } = pet;
+  useEffect(() => {
+    if (mouse == null) return undefined;
+    const timer = window.setInterval(() => {
+      const el = ref.current;
+      const box = el?.parentElement?.getBoundingClientRect();
+      if (!box) return;
+      const max = Math.max(0, box.width - el.offsetWidth);
+      const target = Math.min(Math.max(mouse - box.left - el.offsetWidth / 2, 0), max);
+      const w = walkRef.current;
+      const d = target - w.x;
+      if (Math.abs(d) <= RUN_PX) {
+        setWalk({ ...w, x: target, moving: false });
+        eat();
+        return;
+      }
+      setWalk({
+        x: w.x + Math.sign(d) * RUN_PX,
+        dir: Math.sign(d),
+        moving: true,
+        step: w.step ^ 1,
+      });
+    }, RUN_MS);
+    return () => window.clearInterval(timer);
+  }, [mouse, eat]);
 
   useEffect(() => {
     const still =
       pet.sleeping ||
       pet.happy ||
+      pet.mouse != null ||
       hover ||
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (still) return undefined;
@@ -150,7 +213,7 @@ export function PetCat({ pet, alert = false, className = "" }) {
       });
     }, STRIDE_MS);
     return () => window.clearInterval(timer);
-  }, [pet.sleeping, pet.happy, hover]);
+  }, [pet.sleeping, pet.happy, pet.mouse, hover]);
 
   // The tail wags while the cat is awake, faster when it is happy.
   useEffect(() => {
@@ -232,24 +295,33 @@ export function PetCat({ pet, alert = false, className = "" }) {
     `${PAWS[walk.moving ? walk.step : 0]}${tail[2]}`,
   ];
 
+  const floorLeft = ref.current?.parentElement?.getBoundingClientRect().left ?? 0;
+
   return (
-    <button
-      ref={ref}
-      type="button"
-      className={`pet ${pet.sleeping ? "asleep" : ""} ${className}`.trim()}
-      style={{ transform: `translateX(${walk.x}px)` }}
-      onClick={pet.pet}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      title="pet the cat"
-      aria-label="Pet the cat"
-    >
-      <span className={`pet-say ${pet.saying ? "show" : ""}`} role="status" aria-live="polite">
-        {pet.saying}
-      </span>
-      <pre aria-hidden="true" style={{ transform: `scaleX(${mirrored ? -1 : 1})` }}>
-        {lines.join("\n")}
-      </pre>
-    </button>
+    <>
+      {pet.mouse != null ? (
+        <span className="mouse" aria-hidden="true" style={{ left: pet.mouse - floorLeft }}>
+          {MOUSE}
+        </span>
+      ) : null}
+      <button
+        ref={ref}
+        type="button"
+        className={`pet ${pet.sleeping ? "asleep" : ""} ${className}`.trim()}
+        style={{ transform: `translateX(${walk.x}px)` }}
+        onClick={pet.pet}
+        onMouseEnter={() => setHover(true)}
+        onMouseLeave={() => setHover(false)}
+        title="pet the cat"
+        aria-label="Pet the cat"
+      >
+        <span className={`pet-say ${pet.saying ? "show" : ""}`} role="status" aria-live="polite">
+          {pet.saying}
+        </span>
+        <pre aria-hidden="true" style={{ transform: `scaleX(${mirrored ? -1 : 1})` }}>
+          {lines.join("\n")}
+        </pre>
+      </button>
+    </>
   );
 }
